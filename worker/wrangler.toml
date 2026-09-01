@@ -1,0 +1,25 @@
+name = "check-kon-oon-agent-proxy"
+main = "src/index.js"
+compatibility_date = "2024-09-01"
+
+# ตัวแปรที่ไม่ใช่ความลับ ตั้งค่าตรงนี้ได้เลย (แก้ไขแล้ว deploy ใหม่)
+[vars]
+# ใส่ URL เว็บไซต์ GitHub Pages ของคุณ เช่น "https://<username>.github.io"
+# ตั้งเป็น "*" ชั่วคราวได้ตอนทดสอบ แต่แนะนำให้ระบุให้ตรงก่อนใช้งานจริง เพื่อกันคนอื่นเรียก worker นี้ไปใช้ฟรี
+ALLOWED_ORIGIN = "*"
+
+# ชื่อโมเดลที่จะส่งไปยัง upstream (ปรับตามที่ผู้ให้บริการ/เซิร์ฟเวอร์ของคุณกำหนด)
+MODEL_NAME = "default"
+
+# ----------------------------------------------------------------------------
+# ค่าที่เป็นความลับ (API key, upstream URL หากไม่อยากเปิดเผย) ห้ามใส่ในไฟล์นี้
+# ให้ตั้งผ่านคำสั่งบรรทัดคำสั่งแทน (ดูวิธีทำใน worker/README.md):
+#
+#   wrangler secret put UPSTREAM_API_KEY
+#   wrangler secret put UPSTREAM_BASE_URL
+#
+# ตัวอย่าง UPSTREAM_BASE_URL:
+#   - เซิร์ฟเวอร์ vLLM ที่ self-host เอง:      https://your-server.example.com/v1
+#   - Ollama (โหมด OpenAI-compatible):          https://your-ollama-host.example.com/v1
+#   - บริการอื่นที่ key นี้ใช้ได้จริง (ต้องทดสอบเอง เนื่องจากยังไม่ยืนยันว่า key นี้ผูกกับ endpoint ใด)
+# ----------------------------------------------------------------------------
