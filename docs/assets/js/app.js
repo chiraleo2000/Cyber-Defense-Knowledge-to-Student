@@ -6,15 +6,23 @@
   "use strict";
 
   var PAGES = [
-    { slug: "index", label: "หน้าแรก", group: "เริ่มต้น" },
-    { slug: "domestic-cases", label: "สถิติและคดีจริง (ไทย)", group: "ข้อมูลและสถิติ" },
-    { slug: "international-cases", label: "มุมมองระดับโลก", group: "ข้อมูลและสถิติ" },
-    { slug: "analysis-statistics", label: "การวิเคราะห์สถานการณ์", group: "ข้อมูลและสถิติ" },
-    { slug: "handbook", label: "คู่มือรับมือฉบับเต็ม", group: "คู่มือและแนวทาง" },
-    { slug: "recommendations", label: "ข้อเสนอแนะเชิงนโยบาย", group: "คู่มือและแนวทาง" },
-    { slug: "media-sources", label: "แหล่งที่มาของสื่อ", group: "คู่มือและแนวทาง" },
-    { slug: "survey-report", label: "แบบสำรวจความตระหนักรู้", group: "คู่มือและแนวทาง" },
-    { slug: "downloads", label: "ดาวน์โหลดโปสเตอร์/เอกสาร", group: "ดาวน์โหลด" }
+    { slug: "index", label: "หน้าแรก", group: "เริ่มต้น", keywords: "home เริ่มต้น สัญญาณอันตราย" },
+    { slug: "domestic-cases", label: "สถิติและคดีจริง (ไทย)", group: "ข้อมูลและสถิติ",
+      keywords: "ในประเทศ ไทย ACSC AOC สถิติ คดีจริง แก๊งคอลเซ็นเตอร์ ไทม์ไลน์" },
+    { slug: "international-cases", label: "มุมมองระดับโลก", group: "ข้อมูลและสถิติ",
+      keywords: "ต่างประเทศ สากล โลก FBI IC3 virtual kidnapping romance scam" },
+    { slug: "analysis-statistics", label: "การวิเคราะห์สถานการณ์", group: "ข้อมูลและสถิติ",
+      keywords: "วิเคราะห์ กลโกง 5 ระยะ KPI ตัวชี้วัด แผนดำเนินงาน" },
+    { slug: "handbook", label: "คู่มือรับมือฉบับเต็ม", group: "คู่มือและแนวทาง",
+      keywords: "คู่มือ รับมือ 3 เสาหลัก ตรวจจับ วิดีโอคอล romance scam ลงทุน" },
+    { slug: "recommendations", label: "ข้อเสนอแนะเชิงนโยบาย", group: "คู่มือและแนวทาง",
+      keywords: "นโยบาย ข้อเสนอแนะ มหาวิทยาลัย สถาบันการเงิน ครอบครัว หน่วยงาน" },
+    { slug: "media-sources", label: "แหล่งที่มาของสื่อ", group: "คู่มือและแนวทาง",
+      keywords: "แหล่งข่าว อ้างอิง สำนักข่าว ตรวจสอบข่าว หน่วยงาน" },
+    { slug: "survey-report", label: "แบบสำรวจความตระหนักรู้", group: "คู่มือและแนวทาง",
+      keywords: "แบบสอบถาม สำรวจ วิจัย ตระหนักรู้" },
+    { slug: "downloads", label: "ดาวน์โหลดโปสเตอร์/เอกสาร", group: "ดาวน์โหลด",
+      keywords: "โปสเตอร์ PDF facebook instagram แคปชั่น ดาวน์โหลด" }
   ];
 
   var contentEl = document.getElementById("doc-content");
@@ -29,8 +37,12 @@
   function buildNav(filterText) {
     var groups = {};
     var order = [];
+    var q = filterText ? filterText.toLowerCase() : "";
     PAGES.forEach(function (p) {
-      if (filterText && p.label.toLowerCase().indexOf(filterText.toLowerCase()) === -1) return;
+      if (q) {
+        var haystack = (p.label + " " + (p.keywords || "")).toLowerCase();
+        if (haystack.indexOf(q) === -1) return;
+      }
       if (!groups[p.group]) { groups[p.group] = []; order.push(p.group); }
       groups[p.group].push(p);
     });
