@@ -20,21 +20,25 @@ GitHub Pages เสิร์ฟได้แค่ไฟล์ static (HTML/CSS/J
 Cloudflare Worker  ← เก็บ API key ไว้ที่นี่ (ปลอดภัย มองไม่เห็นจาก client)
         │  แนบ key แล้วเรียกต่อ
         ▼
-Pathumma API (Featherless / self-host)
+Pathumma API (ThaiLLM Playground / self-host)
 ```
 
 Cloudflare Worker มีแพ็กเกจฟรี 100,000 request/วัน เพียงพอสำหรับโปรเจกต์นี้
 
 ---
 
-## เตรียมของ 4 อย่าง
+## เตรียมของ 4 อย่าง (ใช้ ThaiLLM Playground)
 
 1. **บัญชี Cloudflare** (ฟรี) — https://www.cloudflare.com
-2. **API key ของผู้ให้บริการที่โฮสต์ Pathumma** เช่น [Featherless.ai](https://featherless.ai)
-   (สมัครแล้วสร้าง API key ที่ https://featherless.ai/account/api-keys)
-3. **UPSTREAM_BASE_URL** เช่น `https://api.featherless.ai/v1` (ไม่ต้องมี `/chat/completions` ต่อท้าย)
-4. **ชื่อโมเดล** — ตั้งไว้แล้วใน `worker/wrangler.toml`: `nectec/Pathumma-llm-text-1.0.0`
-   (เปลี่ยนเป็น `nectec/thai-research-gemma-3-27b-it` ได้ถ้าต้องการโมเดลใหญ่กว่า)
+2. **API key ของ ThaiLLM Playground** — จาก https://thaillm.or.th
+3. **UPSTREAM_BASE_URL** = `http://thaillm.or.th/api/v1` (ไม่ต้องมี `/chat/completions` ต่อท้าย)
+4. **ชื่อโมเดล** — ตั้งไว้แล้วใน `worker/wrangler.toml`: `pathumma-thaillm-qwen3-8b-think-3.0.0`
+   (ดูรายชื่อโมเดลทั้งหมดได้ที่ `GET http://thaillm.or.th/api/v1/models`)
+
+> **โควตา ThaiLLM:** 5 requests/วินาที และ 200 requests/นาที — เพียงพอสำหรับการใช้งานทั่วไป
+>
+> ⚠️ **ความปลอดภัย:** อย่าวาง API key ลงในโค้ด/ไฟล์/แชท ให้ใส่เฉพาะใน GitHub Secrets หรือ
+> Cloudflare Secrets เท่านั้น หากคีย์เคยหลุด (เช่น เผลอวางในแชท) ให้ **ออกคีย์ใหม่แล้วยกเลิกคีย์เก่า** ทันที
 
 ---
 
@@ -50,8 +54,8 @@ Cloudflare Worker มีแพ็กเกจฟรี 100,000 request/วัน
    |---|---|
    | `CLOUDFLARE_API_TOKEN` | API Token จาก Cloudflare (สิทธิ์ *Edit Cloudflare Workers*) |
    | `CLOUDFLARE_ACCOUNT_ID` | Account ID จากแดชบอร์ด Cloudflare |
-   | `UPSTREAM_API_KEY` | API key ของผู้ให้บริการ Pathumma |
-   | `UPSTREAM_BASE_URL` | เช่น `https://api.featherless.ai/v1` |
+   | `UPSTREAM_API_KEY` | API key ของ ThaiLLM Playground |
+   | `UPSTREAM_BASE_URL` | `http://thaillm.or.th/api/v1` |
 2. ไปแท็บ **Actions → Deploy Cloudflare Worker → Run workflow**
 3. รอจนเสร็จ URL ของ Worker จะอยู่ใน log (เช่น `https://check-kon-oon-agent-proxy.<subdomain>.workers.dev`)
 
@@ -97,9 +101,11 @@ https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/webapp/?agent=
 
 ---
 
-## หมายเหตุเรื่องโมเดล Pathumma
+## หมายเหตุเรื่องโมเดล Pathumma (ThaiLLM)
 
-- Pathumma รุ่นใหม่ (เช่น 4.0.0) เป็น reasoning model ที่ใส่ร่องรอยการคิดใน `<think>...</think>` —
-  Worker ตัดส่วนนี้ออกให้อัตโนมัติ ส่งเฉพาะคำตอบสุดท้ายกลับมา
+- โมเดล `pathumma-thaillm-qwen3-8b-think-3.0.0` เป็น **reasoning model** ที่ใส่ร่องรอยการคิดใน
+  `<think>...</think>` ก่อนคำตอบจริง — Worker ตัดส่วนนี้ออกให้อัตโนมัติ (ฟังก์ชัน `stripThinking`)
+  ส่งเฉพาะคำตอบสุดท้ายกลับมา (ทดสอบกับ API จริงแล้วว่าตัดถูกต้อง)
+- เพราะเป็นโมเดล think จึงตั้ง `max_tokens = 2048` และ timeout 55 วินาที ใน Worker เพื่อไม่ให้คำตอบถูกตัด
 - คำตอบจากผู้ช่วยเป็นข้อมูลเบื้องต้นเท่านั้น ไม่ใช่คำวินิจฉัยทางกฎหมายหรือการเงิน
 - รายละเอียดเทคนิคเพิ่มเติมดูที่ `worker/README.md`

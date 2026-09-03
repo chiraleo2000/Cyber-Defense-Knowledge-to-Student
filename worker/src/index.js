@@ -9,8 +9,8 @@
  *
  * หลังบ้านใช้ Pathumma (ThaiLLM ของ NECTEC): worker นี้เรียกโมเดล Pathumma ผ่าน endpoint แบบ
  * "OpenAI-compatible Chat Completions" ซึ่งเป็นมาตรฐานที่ผู้ให้บริการโฮสต์ Pathumma รองรับ เช่น
- *   - Featherless.ai        UPSTREAM_BASE_URL = https://api.featherless.ai/v1
- *                           MODEL_NAME        = nectec/Pathumma-llm-text-1.0.0
+ *   - ThaiLLM Playground    UPSTREAM_BASE_URL = http://thaillm.or.th/api/v1
+ *                           MODEL_NAME        = pathumma-thaillm-qwen3-8b-think-3.0.0
  *   - self-host เอง (vLLM/Ollama)  UPSTREAM_BASE_URL = https://your-server.example.com/v1
  *                           MODEL_NAME        = ชื่อโมเดล Pathumma ที่โหลดไว้บนเซิร์ฟเวอร์
  * ตั้งค่า UPSTREAM_BASE_URL + MODEL_NAME (ใน wrangler.toml) และ UPSTREAM_API_KEY (secret) ให้ตรงกับ
@@ -20,20 +20,36 @@
  * ก่อนคำตอบจริง — worker นี้จะตัดส่วน <think> ออกให้อัตโนมัติ เพื่อส่งเฉพาะคำตอบสุดท้ายกลับไปให้ผู้ใช้
  *
  * Endpoint ที่ worker นี้เปิดให้ใช้:
- *   POST /chat   body: { "messages": [{role:"user"|"assistant", content:"..."}, ...] }
+ *   GET  /        หรือ /health  → { ok, configured }
+ *   POST /chat    body: { "messages": [{role:"user"|"assistant", content:"..."}, ...] }
  *   ตอบกลับ:      { "reply": "..." }  หรือ  { "error": "..." } เมื่อผิดพลาด/ยังไม่ได้ตั้งค่า
  */
 
 const MAX_MESSAGES = 20;
 const MAX_TOTAL_CHARS = 6000;
-const MAX_REPLY_TOKENS = 500;
+// โมเดล "think" ของ ThaiLLM ใช้ token ไปกับการคิด (<think>...</think>) ก่อนตอบจริง
+// จึงต้องให้เพดาน token สูงพอ ไม่งั้นคำตอบสุดท้ายจะถูกตัดหายหลังส่วนคิด
+const MAX_REPLY_TOKENS = 2048;
 
-function corsHeaders(env) {
-  const allowOrigin = env.ALLOWED_ORIGIN || "*";
+function originList(env) {
+  return String(env.ALLOWED_ORIGIN || "*")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function corsHeaders(env, request) {
+  const list = originList(env);
+  let allowOrigin = "*";
+  if (!list.includes("*")) {
+    const origin = request && request.headers.get("Origin");
+    allowOrigin = origin && list.includes(origin) ? origin : list[0];
+  }
   return {
     "Access-Control-Allow-Origin": allowOrigin,
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "POST, OPTIONS, GET",
     "Access-Control-Allow-Headers": "Content-Type",
+    Vary: "Origin",
   };
 }
 
@@ -48,22 +64,37 @@ function stripThinking(text) {
   return out.trim();
 }
 
-function jsonResponse(body, status, env) {
+function jsonResponse(body, status, env, request) {
   return new Response(JSON.stringify(body), {
     status: status || 200,
-    headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(env) },
+    headers: { "Content-Type": "application/json; charset=utf-8", ...corsHeaders(env, request) },
   });
 }
 
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: corsHeaders(env) });
+      return new Response(null, { headers: corsHeaders(env, request) });
     }
 
     const url = new URL(request.url);
+
+    if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/health")) {
+      return jsonResponse(
+        {
+          ok: true,
+          service: "check-kon-oon-agent-proxy",
+          chat: "/chat",
+          configured: Boolean(env.UPSTREAM_BASE_URL && env.UPSTREAM_API_KEY),
+        },
+        200,
+        env,
+        request
+      );
+    }
+
     if (url.pathname !== "/chat" || request.method !== "POST") {
-      return jsonResponse({ error: "not_found" }, 404, env);
+      return jsonResponse({ error: "not_found", hint: "POST /chat" }, 404, env, request);
     }
 
     if (!env.UPSTREAM_BASE_URL || !env.UPSTREAM_API_KEY) {
@@ -75,7 +106,8 @@ export default {
             "worker ยังไม่ได้ตั้งค่า UPSTREAM_BASE_URL / UPSTREAM_API_KEY กรุณาดู worker/README.md",
         },
         503,
-        env
+        env,
+        request
       );
     }
 
@@ -83,19 +115,19 @@ export default {
     try {
       payload = await request.json();
     } catch (e) {
-      return jsonResponse({ error: "invalid_json" }, 400, env);
+      return jsonResponse({ error: "invalid_json" }, 400, env, request);
     }
 
     const messages = Array.isArray(payload.messages) ? payload.messages : null;
     if (!messages || messages.length === 0) {
-      return jsonResponse({ error: "missing_messages" }, 400, env);
+      return jsonResponse({ error: "missing_messages" }, 400, env, request);
     }
     if (messages.length > MAX_MESSAGES) {
-      return jsonResponse({ error: "too_many_messages" }, 400, env);
+      return jsonResponse({ error: "too_many_messages" }, 400, env, request);
     }
     const totalChars = messages.reduce((sum, m) => sum + (m && m.content ? String(m.content).length : 0), 0);
     if (totalChars > MAX_TOTAL_CHARS) {
-      return jsonResponse({ error: "message_too_long" }, 400, env);
+      return jsonResponse({ error: "message_too_long" }, 400, env, request);
     }
     // sanitize roles — only allow user/assistant/system, everything else dropped
     const safeMessages = messages
@@ -112,10 +144,10 @@ export default {
     };
 
     const upstreamBody = {
-      model: env.MODEL_NAME || "nectec/Pathumma-llm-text-1.0.0",
+      model: env.MODEL_NAME || "pathumma-thaillm-qwen3-8b-think-3.0.0",
       messages: [systemPrompt, ...safeMessages],
       max_tokens: MAX_REPLY_TOKENS,
-      temperature: 0.4,
+      temperature: 0.3,
     };
 
     let upstreamRes;
@@ -127,10 +159,11 @@ export default {
           Authorization: "Bearer " + env.UPSTREAM_API_KEY,
         },
         body: JSON.stringify(upstreamBody),
-        signal: AbortSignal.timeout(20000),
+        // โมเดล think อาจใช้เวลานานกว่าปกติ (คิดก่อนตอบ) จึงให้เวลามากขึ้น
+        signal: AbortSignal.timeout(55000),
       });
     } catch (e) {
-      return jsonResponse({ error: "upstream_unreachable", message: String(e && e.message) }, 502, env);
+      return jsonResponse({ error: "upstream_unreachable", message: String(e && e.message) }, 502, env, request);
     }
 
     if (!upstreamRes.ok) {
@@ -141,7 +174,8 @@ export default {
       return jsonResponse(
         { error: "upstream_error", status: upstreamRes.status, detail: detail.slice(0, 500) },
         502,
-        env
+        env,
+        request
       );
     }
 
@@ -149,7 +183,7 @@ export default {
     try {
       data = await upstreamRes.json();
     } catch (e) {
-      return jsonResponse({ error: "upstream_bad_json" }, 502, env);
+      return jsonResponse({ error: "upstream_bad_json" }, 502, env, request);
     }
 
     let reply =
@@ -160,9 +194,9 @@ export default {
     reply = stripThinking(reply);
 
     if (!reply) {
-      return jsonResponse({ error: "empty_reply" }, 502, env);
+      return jsonResponse({ error: "empty_reply" }, 502, env, request);
     }
 
-    return jsonResponse({ reply }, 200, env);
+    return jsonResponse({ reply }, 200, env, request);
   },
 };

@@ -23,3 +23,15 @@ python tools/build_pdfs.py "ถูกหลอกแล้วทำอย่า�
 
 > ทุกครั้งที่แก้ไขเนื้อหาไฟล์ `.md` ในโฟลเดอร์ `docs/content/` ให้รันสคริปต์นี้ใหม่
 > เพื่อให้ไฟล์ PDF ตรงกับเนื้อหาล่าสุด แล้ว commit ไฟล์ PDF ที่อัปเดตไปพร้อมกัน
+
+## selfhost-pathumma.ps1 — โฮสต์ Pathumma เองด้วย vLLM
+
+ทางเลือกถ้าไม่ใช้ผู้ให้บริการภายนอก (เช่น Featherless) ต้องมี Docker + GPU NVIDIA
+และ `cloudflared` ถ้าต้องการให้ Cloudflare Worker เรียกได้จากอินเทอร์เน็ต
+
+```powershell
+powershell -File .\tools\selfhost-pathumma.ps1          # รันเฉพาะในเครื่อง
+powershell -File .\tools\selfhost-pathumma.ps1 -Tunnel  # + เปิด HTTPS สาธารณะ
+```
+
+รายละเอียดการตั้ง `UPSTREAM_BASE_URL` ดูที่ `worker/README.md`

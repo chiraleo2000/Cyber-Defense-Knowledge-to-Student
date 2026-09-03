@@ -1,9 +1,11 @@
 # Agent Proxy — วิธี Deploy
 
-Worker นี้ทำหน้าที่เป็น "ตัวกลาง" ระหว่างเว็บแอปกับบริการ LLM (Pathumma หรือบริการอื่นที่ใช้ API key
-เดียวกัน) เพื่อไม่ให้ API key รั่วไหลออกไปฝั่ง client — **จำเป็นต้อง deploy ก่อน** ฟีเจอร์ "ผู้ช่วย AI"
-ในเว็บแอปจึงจะใช้งานได้ (ถ้าไม่ deploy เว็บแอปจะยังใช้งานได้ปกติทุกส่วน ยกเว้นฟีเจอร์แชทกับผู้ช่วย AI
-ซึ่งจะแสดงข้อความแจ้งว่ายังไม่พร้อมใช้งาน แทนที่จะ error)
+Worker นี้ทำหน้าที่เป็น "ตัวกลาง" ระหว่างเว็บแอปกับบริการ LLM (Pathumma หรือบริการอื่นที่ใช้ API
+แบบ OpenAI-compatible) เพื่อไม่ให้ API key รั่วไหลออกไปฝั่ง client — **จำเป็นต้อง deploy ก่อน**
+ฟีเจอร์ "ผู้ช่วย AI" ในเว็บแอปจึงจะใช้งานได้ (ถ้าไม่ deploy เว็บแอปจะยังใช้งานได้ปกติทุกส่วน
+ยกเว้นฟีเจอร์แชทกับผู้ช่วย AI ซึ่งจะตอบแบบออฟไลน์/กฎเบื้องต้นแทน)
+
+เว็บไซต์ GitHub Pages ของโปรเจกต์นี้: `https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/`
 
 ## หลังบ้านใช้ Pathumma (ThaiLLM ของ NECTEC)
 
@@ -11,64 +13,100 @@ Worker นี้ทำหน้าที่เป็น "ตัวกลาง" 
 (ดู [huggingface.co/nectec](https://huggingface.co/nectec)) ที่ใช้งานได้ 2 ทางหลัก โดยทั้งสองทางพูดภาษา
 มาตรฐานเดียวกันคือ **OpenAI-compatible Chat Completions** worker นี้จึงเรียกได้โดยไม่ต้องแก้โค้ด:
 
-### ทางที่ 1 (ง่ายสุด): ใช้ผู้ให้บริการที่โฮสต์ Pathumma ให้แล้ว
+### ทางที่ 1 (ง่ายสุด): ใช้ ThaiLLM Playground
 
-ตัวอย่าง [Featherless.ai](https://featherless.ai) ที่มีโมเดล Pathumma พร้อมใช้:
+[ThaiLLM Playground](https://thaillm.or.th) ให้บริการโมเดล Pathumma แบบ OpenAI-compatible:
 
-- `UPSTREAM_BASE_URL` = `https://api.featherless.ai/v1`
-- `MODEL_NAME` = `nectec/Pathumma-llm-text-1.0.0` (หรือ `nectec/thai-research-gemma-3-27b-it`)
-- `UPSTREAM_API_KEY` = API key จากบัญชีผู้ให้บริการนั้น
+- `UPSTREAM_BASE_URL` = `http://thaillm.or.th/api/v1`
+- `MODEL_NAME` = `pathumma-thaillm-qwen3-8b-think-3.0.0` (ดูรายชื่อทั้งหมดที่ `GET /api/v1/models`)
+- `UPSTREAM_API_KEY` = API key จาก ThaiLLM Playground
+- โควตา: 5 req/วินาที, 200 req/นาที
 
 ### ทางที่ 2: self-host โมเดล Pathumma เอง
 
-รันบนเซิร์ฟเวอร์ที่มี GPU เพียงพอด้วย vLLM หรือ Ollama ในโหมด OpenAI-compatible API แล้วตั้ง
-`UPSTREAM_BASE_URL` เป็น URL เซิร์ฟเวอร์ของคุณ (เช่น `https://your-server.example.com/v1`) และ
-`MODEL_NAME` ตามชื่อโมเดลที่โหลดไว้
+มีสคริปต์ช่วยใน `tools/selfhost-pathumma.ps1` (Windows + Docker GPU) — ดูหัวข้อท้ายไฟล์นี้
+หรือรันบนเซิร์ฟเวอร์ Linux ที่มี GPU ด้วย vLLM/Ollama แล้วตั้ง `UPSTREAM_BASE_URL` เป็น URL สาธารณะ
+(เช่น `https://your-server.example.com/v1`) และ `MODEL_NAME` ตามชื่อโมเดลที่โหลดไว้
 
-> **ทดสอบ key/endpoint ก่อน deploy เสมอ** ด้วย curl ยิงตรงไป `<UPSTREAM_BASE_URL>/chat/completions`
+> **ทดสอบ key/endpoint ก่อน deploy เสมอ** ด้วยการยิงตรงไป `<UPSTREAM_BASE_URL>/chat/completions`
 > เพื่อยืนยันว่าใช้งานได้จริง แล้วค่อยนำมาตั้งค่า worker
-
+>
 > **หมายเหตุ:** Pathumma รุ่นใหม่ (เช่น 4.0.0) เป็น reasoning model ที่ใส่ร่องรอยการคิดใน `<think>...</think>`
 > worker นี้ตัดส่วนนั้นออกให้อัตโนมัติแล้ว จึงส่งเฉพาะคำตอบสุดท้ายกลับไปที่เว็บแอป
 
-## ขั้นตอน Deploy
+## ขั้นตอน Deploy (เลือกวิธีใดวิธีหนึ่ง)
 
-ต้องมีบัญชี Cloudflare (สมัครฟรีได้ที่ [cloudflare.com](https://www.cloudflare.com)) และ Node.js ติดตั้งแล้ว
+`ALLOWED_ORIGIN` ใน `wrangler.toml` ล็อกเป็นโดเมน GitHub Pages ของโปรเจกต์นี้แล้ว
+(`https://chiraleo2000.github.io`) ไม่ต้อง deploy รอบสองเพื่อปิด `"*"`
 
-```bash
+### วิธี A — สคริปต์บนเครื่อง Windows (แนะนำถ้ามี Node.js)
+
+ต้องมีบัญชี Cloudflare (สมัครฟรีได้ที่ [cloudflare.com](https://www.cloudflare.com))
+
+```powershell
+# ถ้ายังไม่มี Node.js
+winget install OpenJS.NodeJS.LTS
+# ปิด-เปิดเทอร์มินัล แล้ว:
 cd worker
-npm install -g wrangler        # เครื่องมือ deploy ของ Cloudflare Workers
-wrangler login                  # เข้าสู่ระบบ Cloudflare ผ่านเบราว์เซอร์
-
-# ตั้งค่าความลับ (จะถูกถามให้พิมพ์ค่า ไม่แสดงผลบนหน้าจอ และไม่ถูกบันทึกลงไฟล์ใดๆ ในเครื่อง/repo)
-wrangler secret put UPSTREAM_API_KEY
-# วาง API key ของคุณตรงนี้ แล้วกด Enter
-
-wrangler secret put UPSTREAM_BASE_URL
-# วาง URL ของ endpoint (ไม่ต้องมี /chat/completions ต่อท้าย เช่น https://your-server.com/v1)
-
-wrangler deploy
+powershell -File .\deploy.ps1
 ```
 
-เมื่อ deploy สำเร็จ wrangler จะแสดง URL ของ worker เช่น
-`https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev`
+สคริปต์จะเปิดเบราว์เซอร์ให้ล็อกอิน Cloudflare แล้วถามคีย์/URL จากนั้น `wrangler deploy`
+เมื่อสำเร็จจะได้ URL เช่น `https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev`
+
+ทำทีละคำสั่งเองก็ได้:
+
+```powershell
+cd worker
+npx --yes wrangler@4 login
+npx --yes wrangler@4 secret put UPSTREAM_API_KEY
+npx --yes wrangler@4 secret put UPSTREAM_BASE_URL
+npx --yes wrangler@4 deploy
+```
+
+### วิธี B — GitHub Actions (ไม่ต้องติดตั้ง Node บนเครื่อง)
+
+1. สร้าง Cloudflare API Token (สิทธิ์ Edit Cloudflare Workers) แล้วคัดลอก Account ID จากแดชบอร์ด
+2. ใน GitHub repo ไปที่ **Settings → Secrets and variables → Actions** แล้วเพิ่ม:
+   - `CLOUDFLARE_API_TOKEN`
+   - `CLOUDFLARE_ACCOUNT_ID`
+   - `UPSTREAM_API_KEY`
+   - `UPSTREAM_BASE_URL` (`http://thaillm.or.th/api/v1`)
+3. ไปที่แท็บ **Actions → Deploy Cloudflare Worker → Run workflow**
 
 ## หลัง Deploy: เชื่อมกับเว็บแอป
 
-เลือกวิธีใดวิธีหนึ่งเพื่อชี้เว็บแอปไปที่ worker (URL ต้องลงท้ายด้วย `/chat`):
+เปิดครั้งเดียว เบราว์เซอร์จะจำ URL ไว้ใน `localStorage`:
 
-- **ง่ายสุด ไม่ต้องแก้โค้ด:** เปิดเว็บแอปด้วยพารามิเตอร์ครั้งเดียว เบราว์เซอร์จะจำไว้ให้เอง
-  `https://<username>.github.io/webapp/?agent=https://<worker>.workers.dev/chat`
-- หรือใน DevTools console: `localStorage.setItem('cko-agent-url','https://<worker>.workers.dev/chat')`
-- **หรือฝังถาวรในเว็บ:** แก้ค่า `AGENT_PROXY_URL_DEFAULT` ที่ต้นสคริปต์ของ `webapp-source/check-kon-oon.html`
-  (ดูคอมเมนต์กำกับ) แล้วคัดลอกทับ `docs/webapp/index.html` ด้วย `cp webapp-source/check-kon-oon.html docs/webapp/index.html`
+```
+https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/webapp/?agent=https://<worker>.workers.dev/chat
+```
 
-จากนั้นกลับไปที่ `wrangler.toml` แก้ `ALLOWED_ORIGIN` ให้ตรงกับโดเมนเว็บไซต์จริง (แทน `"*"` เช่น
-`https://<username>.github.io`) แล้ว `wrangler deploy` อีกครั้ง เพื่อกันเว็บอื่นเรียกใช้ worker ของคุณฟรี
+ทางเลือกอื่น:
+
+- ใน DevTools console: `localStorage.setItem('cko-agent-url','https://<worker>.workers.dev/chat')`
+- **ฝังถาวรในเว็บ:** แก้ค่า `AGENT_PROXY_URL_DEFAULT` ที่ต้นสคริปต์ของ `webapp-source/check-kon-oon.html`
+  แล้วคัดลอกทับ `docs/webapp/index.html`
+
+ถ้าต้องการทดสอบเว็บแอปจาก localhost ด้วย ให้เติม origin ใน `wrangler.toml` เช่น
+`ALLOWED_ORIGIN = "https://chiraleo2000.github.io,http://localhost:5500"` แล้ว deploy ใหม่
 
 ## ทดสอบว่า worker ทำงานถูกต้อง
 
+```powershell
+# เปิดในเบราว์เซอร์หรือ:
+#   https://<worker>.workers.dev/health
+# ควรได้ {"ok":true,"configured":true,...}
+
+cd worker
+powershell -File .\test-chat.ps1 -WorkerUrl https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev
+```
+
+หรือด้วย curl:
+
 ```bash
+curl https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev/health
+
 curl -X POST https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev/chat \
   -H "Content-Type: application/json" \
   -d '{"messages":[{"role":"user","content":"สวัสดีครับ ทดสอบระบบ"}]}'
@@ -78,7 +116,27 @@ curl -X POST https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev/chat
 ยังไม่ได้ตั้ง secret ให้ครบ หากได้ `{"error": "upstream_error", ...}` แปลว่า key หรือ URL ที่ตั้งไว้ยังไม่ถูกต้อง
 กรุณากลับไปตรวจสอบกับผู้ให้บริการ endpoint นั้นโดยตรง
 
+## Self-host Pathumma ด้วย vLLM (ทางเลือก)
+
+Cloudflare Worker **เรียก localhost ของเครื่องคุณไม่ได้** ต้องมี URL สาธารณะ (HTTPS)
+สคริปต์ `tools/selfhost-pathumma.ps1` รัน vLLM ใน Docker แล้วเปิด Cloudflare Tunnel ให้:
+
+```powershell
+winget install Docker.DockerDesktop
+winget install Cloudflare.cloudflared
+# เปิด Docker Desktop ให้พร้อม GPU/WSL2 แล้ว:
+powershell -File .\tools\selfhost-pathumma.ps1 -Tunnel
+```
+
+คัดลอก URL `https://....trycloudflare.com` ที่ cloudflared แสดง แล้วตั้ง
+
+- `UPSTREAM_BASE_URL` = `https://<tunnel-host>/v1`
+- `MODEL_NAME` ใน `wrangler.toml` = `nectec/Pathumma-llm-text-1.0.0`
+
+ต้องมี GPU NVIDIA (แนะนำ VRAM 16GB ขึ้นไป) ครั้งแรกจะดาวน์โหลดโมเดลจาก Hugging Face
+
 ## ค่าใช้จ่าย
 
 Cloudflare Workers มีแพ็กเกจฟรีให้ 100,000 request/วัน ซึ่งเพียงพอสำหรับการใช้งานจริงของโปรเจกต์นี้
 ค่าใช้จ่ายที่อาจเกิดขึ้นจริงคือค่าบริการของ upstream LLM API เอง (ขึ้นกับผู้ให้บริการที่คุณเลือกใช้)
+หรือค่าไฟฟ้า/GPU หาก self-host

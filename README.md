@@ -91,8 +91,8 @@ workflow `.github/workflows/deploy-pages.yml` จะนำเนื้อหา�
 2. **ชี้เว็บแอปไปที่ Worker** เปิดลิงก์นี้ครั้งเดียว (เบราว์เซอร์จะจำไว้เอง):
    `https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/webapp/?agent=https://<worker>.workers.dev/chat`
 
-ค่า Pathumma ที่ตั้งไว้แล้ว: `UPSTREAM_BASE_URL` เช่น `https://api.featherless.ai/v1`,
-`MODEL_NAME=nectec/Pathumma-llm-text-1.0.0` (ดูรายละเอียดใน `worker/README.md`)
+ค่า Pathumma ที่ตั้งไว้แล้ว (ThaiLLM Playground): `UPSTREAM_BASE_URL` = `http://thaillm.or.th/api/v1`,
+`MODEL_NAME=pathumma-thaillm-qwen3-8b-think-3.0.0` (ดูรายละเอียดใน `worker/README.md`)
 ทดสอบ worker หลัง deploy: `powershell -File worker\test-chat.ps1 -WorkerUrl https://<worker>.workers.dev`
 
 > ถ้ายังไม่ deploy Worker เว็บแอปยังใช้งานได้ปกติทุกส่วน เพียงแต่ผู้ช่วย AI จะตอบแบบออฟไลน์ (กฎเบื้องต้น) แทน
