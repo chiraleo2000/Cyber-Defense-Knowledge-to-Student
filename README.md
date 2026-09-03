@@ -40,53 +40,6 @@
 ```bash
 cp webapp-source/check-kon-oon.html docs/webapp/index.html
 ```
-
----
-
-## ขั้นตอนที่ 1 — Push ขึ้น GitHub
-
-โฟลเดอร์นี้เตรียมและ commit ไว้ในเครื่อง (local git repo) พร้อมแล้ว ยังไม่ได้เชื่อมกับ GitHub
-เนื่องจากต้องใช้บัญชี/สิทธิ์ของคุณเอง:
-
-```bash
-# สร้าง repo ว่างบน GitHub ก่อน (ผ่านเว็บ github.com/new) ตั้งชื่อตามต้องการ เช่น check-kon-oon
-# แล้วรันคำสั่งต่อไปนี้ในโฟลเดอร์นี้:
-
-git remote add origin https://github.com/<username>/<repo-name>.git
-git branch -M main
-git push -u origin main
-```
-
-## ขั้นตอนที่ 2 — เปิดใช้งาน GitHub Pages
-
-1. ไปที่หน้า repo บน GitHub → **Settings** → **Pages**
-2. หัวข้อ "Build and deployment" → Source เลือก **Deploy from a branch**
-3. Branch เลือก **main** และโฟลเดอร์เลือก **/docs**
-4. กด **Save** — GitHub จะให้ URL เว็บไซต์มา (รูปแบบ `https://<username>.github.io/<repo-name>/`)
-   ปกติใช้เวลา 1-2 นาทีจึงจะออนไลน์
-
-## ขั้นตอนที่ 3 (ไม่บังคับ) — Deploy Agent Proxy สำหรับฟีเจอร์ "ผู้ช่วย AI"
-
-ดูรายละเอียดทั้งหมดที่ **[worker/README.md](worker/README.md)** — สรุปสั้นๆ:
-
-- ฟีเจอร์นี้ต้องมี backend เก็บ API key จึงต้อง deploy แยกผ่าน Cloudflare Workers (ฟรี)
-- **สำคัญเกี่ยวกับ Pathumma API key ที่ให้มา**: จากการตรวจสอบ ณ ตอนจัดทำโปรเจกต์นี้ Pathumma
-  (ของ NECTEC) เป็นชุดโมเดลโอเพนซอร์สที่เผยแพร่ให้ **self-host เอง** เท่านั้น (ผ่าน llama.cpp/vLLM/Ollama)
-  ไม่พบ API สาธารณะที่เปิดให้เรียกผ่านอินเทอร์เน็ตได้ทันทีแบบ ChatGPT API — **จึงยังไม่ยืนยันได้ว่า
-  API key ที่คุณมีผูกกับ endpoint ใด กรุณาทดสอบ key กับผู้ให้บริการที่คุณได้ key มาโดยตรงก่อน**
-  (worker/README.md มีคำสั่ง curl สำหรับทดสอบ) หากไม่มี endpoint สาธารณะ อีกทางเลือกคือ self-host
-  โมเดล Pathumma เอง (ดู [huggingface.co/nectec](https://huggingface.co/nectec)) แล้วนำ URL เซิร์ฟเวอร์
-  ของคุณเองมาตั้งค่า — worker ที่เตรียมไว้รองรับ endpoint แบบ OpenAI-compatible ทั่วไป ใช้ได้กับ
-  vLLM/Ollama/text-generation-webui/llama.cpp server หรือบริการอื่นที่ใช้มาตรฐานเดียวกัน
-- หลัง deploy worker สำเร็จ จะได้ URL เช่น `https://check-kon-oon-agent-proxy.<subdomain>.workers.dev`
-  ให้นำไปใส่ที่ตัวแปร `AGENT_PROXY_URL` ในไฟล์ `webapp-source/check-kon-oon.html` (บรรทัดที่มีคอมเมนต์
-  กำกับไว้ชัดเจนว่า "ตั้งค่า URL ของ Cloudflare Worker proxy ตรงนี้") แล้วคัดลอกทับ `docs/webapp/index.html`
-  ตาม "สำคัญ" ด้านบน จากนั้น commit + push ใหม่อีกครั้ง
-- ถ้าไม่ deploy ส่วนนี้เลย เว็บแอปยังใช้งานได้ครบทุกฟีเจอร์ปกติ ยกเว้นผู้ช่วย AI จะตอบแบบกฎเบื้องต้น
-  (offline) แทนการเชื่อมโมเดลจริง
-
----
-
 ## ความโปร่งใสของเนื้อหา (สำคัญ — โปรดอ่านก่อนเผยแพร่)
 
 เพื่อไม่ให้มีข้อมูลเท็จหรือสถิติที่แต่งขึ้นปะปนอยู่ในเนื้อหา จึงขอสรุปข้อจำกัดที่ตั้งใจไว้ตั้งแต่แรก:
