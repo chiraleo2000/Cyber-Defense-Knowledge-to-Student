@@ -1,7 +1,6 @@
 name: Deploy Cloudflare Worker
 
-# ไม่รันอัตโนมัติตอน push — กด Run workflow เองหลังใส่ GitHub Secrets ครบ
-# Secrets ที่ต้องมีใน repo (Settings → Secrets and variables → Actions):
+# กด Run workflow เองจากแท็บ Actions หลังใส่ GitHub Secrets ครบ 4 ตัว:
 #   CLOUDFLARE_API_TOKEN   — API Token จาก Cloudflare (สิทธิ์ Edit Cloudflare Workers)
 #   CLOUDFLARE_ACCOUNT_ID  — Account ID จากแดชบอร์ด Cloudflare
 #   UPSTREAM_API_KEY       — คีย์ ThaiLLM Playground (thaillm.or.th)
@@ -9,6 +8,12 @@ name: Deploy Cloudflare Worker
 
 on:
   workflow_dispatch: {}
+  # รันอัตโนมัติเมื่อแก้โค้ด worker บน main ด้วย (Secrets ต้องตั้งไว้ก่อน ไม่งั้นจะข้ามการ deploy จริง)
+  push:
+    branches: ["main"]
+    paths:
+      - "worker/**"
+      - ".github/workflows/deploy-worker.yml"
 
 jobs:
   deploy:
@@ -17,12 +22,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy agent proxy
+      - name: Deploy agent proxy (ThaiLLM/Pathumma)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: worker
+          wranglerVersion: "3.90.0"
           command: deploy
           secrets: |
             UPSTREAM_API_KEY

@@ -157,6 +157,11 @@ export default {
         headers: {
           "Content-Type": "application/json",
           Authorization: "Bearer " + env.UPSTREAM_API_KEY,
+          // บาง endpoint (เช่น ThaiLLM ที่อยู่หลัง Cloudflare) จะบล็อก request ที่ไม่มี User-Agent
+          // แบบเบราว์เซอร์ ด้วย error 1010 — จึงส่ง UA และ Accept ให้ดูเหมือน client ปกติ
+          "User-Agent": env.UPSTREAM_USER_AGENT ||
+            "Mozilla/5.0 (compatible; CheckKonOonAgent/1.0; +https://github.com/chiraleo2000/Cyber-Defense-Knowledge-to-Student)",
+          "Accept": "application/json",
         },
         body: JSON.stringify(upstreamBody),
         // โมเดล think อาจใช้เวลานานกว่าปกติ (คิดก่อนตอบ) จึงให้เวลามากขึ้น
