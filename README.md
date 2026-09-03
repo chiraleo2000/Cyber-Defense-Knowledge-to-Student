@@ -22,7 +22,10 @@
 
 ```
 .
+├── .github/workflows/
+│   └── deploy-pages.yml       ← GitHub Actions: deploy docs/ ขึ้น Pages อัตโนมัติเมื่อ push เข้า main
 ├── docs/                     ← เนื้อหาที่ GitHub Pages จะเผยแพร่ (ตั้ง Pages ให้ deploy จากโฟลเดอร์นี้)
+│   ├── .nojekyll             ← ปิดการประมวลผล Jekyll เพื่อให้ assets/ ถูกเสิร์ฟตรงๆ
 │   ├── index.html            ← หน้าเว็บหลัก (SPA เรนเดอร์ markdown)
 │   ├── content/*.md          ← เนื้อหาทุกหน้า (แก้ไขที่นี่)
 │   ├── assets/                ← CSS, JS, ฟอนต์ (self-hosted ทั้งหมด ไม่พึ่ง CDN ภายนอก)
@@ -34,6 +37,20 @@
 └── README.md                  ← ไฟล์นี้
 ```
 
+## การตั้งค่า GitHub Pages (deploy อัตโนมัติ)
+
+โปรเจกต์นี้มี GitHub Actions workflow ที่ไฟล์ `.github/workflows/deploy-pages.yml` ซึ่งจะเผยแพร่
+โฟลเดอร์ `docs/` ขึ้น GitHub Pages โดยอัตโนมัติทุกครั้งที่ push เข้าสาขา `main` ตั้งค่าครั้งแรกดังนี้:
+
+1. ไปที่ **Settings → Pages** ของ repository
+2. หัวข้อ **Build and deployment → Source** เลือก **GitHub Actions**
+3. push โค้ดเข้า `main` (หรือกด Run workflow เองจากแท็บ **Actions**) — เว็บจะเผยแพร่อัตโนมัติ
+
+เมื่อ deploy สำเร็จ URL ของเว็บจะปรากฏในแท็บ Actions และที่ Settings → Pages
+
+> ทางเลือกแบบไม่ใช้ Actions: ที่ Settings → Pages เลือก Source เป็น **Deploy from a branch**
+> แล้วเลือก branch `main` โฟลเดอร์ `/docs` ก็ใช้งานได้เช่นกัน (แต่ workflow ให้การควบคุมและ log ที่ดีกว่า)
+
 **สำคัญ**: `docs/webapp/index.html` เป็นสำเนาที่เผยแพร่จริง ส่วน `webapp-source/check-kon-oon.html`
 เป็นต้นฉบับสำหรับแก้ไข เมื่อแก้ไฟล์ต้นฉบับแล้วให้คัดลอกทับไฟล์ในตำแหน่งที่เผยแพร่ด้วยเสมอ:
 
@@ -44,6 +61,9 @@ cp webapp-source/check-kon-oon.html docs/webapp/index.html
 
 เพื่อไม่ให้มีข้อมูลเท็จหรือสถิติที่แต่งขึ้นปะปนอยู่ในเนื้อหา จึงขอสรุปข้อจำกัดที่ตั้งใจไว้ตั้งแต่แรก:
 
+- **คู่มือรับมือเมื่อถูกหลอก** (`docs/content/deal-with-scam.md`) — คู่มือปฏิบัติเร่งด่วน รวมหลัก "4 ไม่"
+  ทางการของกระทรวง DE, ขั้นตอนแจ้งความ/อายัดบัญชี และสิทธิ์ตามกฎหมาย 72 ชั่วโมง อ้างอิงแหล่งข่าว/หน่วยงาน
+  ทางการ (DE, AOC 1441, พ.ร.ก. 2566) กำกับทุกจุด
 - **สถิติ/คดีในประเทศไทย** (`docs/content/domestic-cases.md`) — อ้างอิงจากข่าวและแหล่งข้อมูล
   ที่ตรวจสอบแล้วเท่านั้น มีลิงก์แหล่งที่มากำกับทุกรายการ
 - **มุมมองระดับโลก** (`docs/content/international-cases.md`) — ตั้งใจใส่เฉพาะสถิติที่ยืนยันได้จริง
