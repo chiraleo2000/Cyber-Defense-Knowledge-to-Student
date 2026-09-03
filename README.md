@@ -27,15 +27,33 @@
 ├── docs/                     ← เนื้อหาที่ GitHub Pages จะเผยแพร่ (ตั้ง Pages ให้ deploy จากโฟลเดอร์นี้)
 │   ├── .nojekyll             ← ปิดการประมวลผล Jekyll เพื่อให้ assets/ ถูกเสิร์ฟตรงๆ
 │   ├── index.html            ← หน้าเว็บหลัก (SPA เรนเดอร์ markdown)
-│   ├── content/*.md          ← เนื้อหาทุกหน้า (แก้ไขที่นี่)
+│   ├── content/*.md          ← เนื้อหาทุกหน้า (ชื่อไฟล์ภาษาไทย — แก้ไขที่นี่)
 │   ├── assets/                ← CSS, JS, ฟอนต์ (self-hosted ทั้งหมด ไม่พึ่ง CDN ภายนอก)
-│   ├── downloads/             ← PDF + โปสเตอร์ (พร้อมโพสต์ Facebook/Instagram)
+│   ├── downloads/             ← PDF (ชื่อไทย ตรงกับ .md) + โปสเตอร์ (พร้อมโพสต์ Facebook/Instagram)
 │   └── webapp/index.html      ← สำเนาเว็บแอปที่ให้บริการจริงบน Pages
+├── tools/                     ← สคริปต์สร้าง PDF จาก Markdown (build_pdfs.py) — ดู tools/README.md
 ├── webapp-source/
 │   └── check-kon-oon.html    ← ต้นฉบับเว็บแอป (แก้ที่นี่ แล้วคัดลอกไปทับ docs/webapp/index.html)
 ├── worker/                    ← Cloudflare Worker (Agent Proxy) — ดู worker/README.md
 └── README.md                  ← ไฟล์นี้
 ```
+
+## ชื่อไฟล์ภาษาไทย + มีทั้ง Markdown และ PDF
+
+ทุกหน้าของเว็บไซต์ใช้ **ชื่อไฟล์ภาษาไทย** และมีให้ครบทั้ง 2 รูปแบบ:
+
+- ฉบับ **Markdown** อยู่ที่ `docs/content/<ชื่อไทย>.md` (render เป็นเว็บผ่าน SPA)
+- ฉบับ **PDF** อยู่ที่ `docs/downloads/<ชื่อไทย>.pdf` (สำหรับพิมพ์/แชร์เป็นไฟล์)
+
+ตาราง slug (ชื่อไฟล์ไม่รวมนามสกุล) ถูกกำหนดไว้ใน `docs/assets/js/app.js` (ตัวแปร `PAGES`)
+โดย router จะ `encodeURIComponent` ให้อัตโนมัติเมื่อโหลดไฟล์และแปลงลิงก์ `.md` ภายในหน้า
+ดังนั้น URL ที่แชร์จะเป็นรูปแบบ encode (เช่น `#/%E0%B8%84...`) ซึ่งทำงานได้ปกติบน GitHub Pages
+
+**เมื่อเพิ่ม/แก้หน้า:**
+1. แก้หรือสร้างไฟล์ `.md` ชื่อไทยใน `docs/content/`
+2. เพิ่ม/แก้รายการใน `PAGES` ของ `app.js` (ถ้าเป็นหน้าใหม่)
+3. รัน `python tools/build_pdfs.py` เพื่อสร้าง/อัปเดตไฟล์ PDF ให้ตรงกับเนื้อหา
+4. เพิ่มลิงก์ในหน้า `docs/content/ดาวน์โหลด.md` (ถ้าเป็นหน้าใหม่)
 
 ## การตั้งค่า GitHub Pages (deploy อัตโนมัติ)
 

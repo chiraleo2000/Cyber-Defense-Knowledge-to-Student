@@ -1,31 +1,34 @@
 /* เช็คก่อนโอน — client-side markdown site renderer
    ไม่มี build step: โหลดไฟล์ .md จาก content/ ตรงๆ แล้ว render ด้วย marked.js (self-hosted)
-   Routing: #/<slug> เช่น #/domestic-cases -> โหลด content/domestic-cases.md
+   Routing: #/<slug> โดย slug เป็นชื่อไฟล์ไทย เช่น #/คดีจริงในไทย -> โหลด content/คดีจริงในไทย.md (encode อัตโนมัติ)
 */
 (function () {
   "use strict";
 
+  // slug = ชื่อไฟล์ .md ภาษาไทย (ไม่รวมนามสกุล) — router จะ encode ให้เองตอน fetch
   var PAGES = [
-    { slug: "index", label: "หน้าแรก", group: "เริ่มต้น", keywords: "home เริ่มต้น สัญญาณอันตราย" },
-    { slug: "deal-with-scam", label: "ถูกหลอกแล้วทำอย่างไร + หลัก 4 ไม่", group: "เริ่มต้น",
+    { slug: "หน้าแรก", label: "หน้าแรก", group: "เริ่มต้น", keywords: "home เริ่มต้น สัญญาณอันตราย" },
+    { slug: "ถูกหลอกแล้วทำอย่างไร", label: "ถูกหลอกแล้วทำอย่างไร + หลัก 4 ไม่", group: "เริ่มต้น",
       keywords: "ถูกหลอก รับมือ แจ้งความ อายัดบัญชี 1441 4 ไม่ ไม่กดลิงก์ ไม่เชื่อ ไม่รีบ ไม่โอน 72 ชั่วโมง ป้องกัน" },
-    { slug: "domestic-cases", label: "สถิติและคดีจริง (ไทย)", group: "ข้อมูลและสถิติ",
+    { slug: "คดีจริงในไทย", label: "สถิติและคดีจริง (ไทย)", group: "ข้อมูลและสถิติ",
       keywords: "ในประเทศ ไทย ACSC AOC สถิติ คดีจริง แก๊งคอลเซ็นเตอร์ ไทม์ไลน์" },
-    { slug: "international-cases", label: "มุมมองระดับโลก", group: "ข้อมูลและสถิติ",
+    { slug: "มุมมองระดับโลก", label: "มุมมองระดับโลก", group: "ข้อมูลและสถิติ",
       keywords: "ต่างประเทศ สากล โลก FBI IC3 virtual kidnapping romance scam" },
-    { slug: "analysis-statistics", label: "การวิเคราะห์สถานการณ์", group: "ข้อมูลและสถิติ",
+    { slug: "การวิเคราะห์สถานการณ์", label: "การวิเคราะห์สถานการณ์", group: "ข้อมูลและสถิติ",
       keywords: "วิเคราะห์ กลโกง 5 ระยะ KPI ตัวชี้วัด แผนดำเนินงาน" },
-    { slug: "handbook", label: "คู่มือรับมือฉบับเต็ม", group: "คู่มือและแนวทาง",
+    { slug: "คู่มือรับมือ", label: "คู่มือรับมือฉบับเต็ม", group: "คู่มือและแนวทาง",
       keywords: "คู่มือ รับมือ 3 เสาหลัก ตรวจจับ วิดีโอคอล romance scam ลงทุน" },
-    { slug: "recommendations", label: "ข้อเสนอแนะเชิงนโยบาย", group: "คู่มือและแนวทาง",
+    { slug: "ข้อเสนอแนะเชิงนโยบาย", label: "ข้อเสนอแนะเชิงนโยบาย", group: "คู่มือและแนวทาง",
       keywords: "นโยบาย ข้อเสนอแนะ มหาวิทยาลัย สถาบันการเงิน ครอบครัว หน่วยงาน" },
-    { slug: "media-sources", label: "แหล่งที่มาของสื่อ", group: "คู่มือและแนวทาง",
+    { slug: "แหล่งที่มาของสื่อ", label: "แหล่งที่มาของสื่อ", group: "คู่มือและแนวทาง",
       keywords: "แหล่งข่าว อ้างอิง สำนักข่าว ตรวจสอบข่าว หน่วยงาน" },
-    { slug: "survey-report", label: "แบบสำรวจความตระหนักรู้", group: "คู่มือและแนวทาง",
+    { slug: "แบบสำรวจความตระหนักรู้", label: "แบบสำรวจความตระหนักรู้", group: "คู่มือและแนวทาง",
       keywords: "แบบสอบถาม สำรวจ วิจัย ตระหนักรู้" },
-    { slug: "downloads", label: "ดาวน์โหลดโปสเตอร์/เอกสาร", group: "ดาวน์โหลด",
+    { slug: "ดาวน์โหลด", label: "ดาวน์โหลดโปสเตอร์/เอกสาร", group: "ดาวน์โหลด",
       keywords: "โปสเตอร์ PDF facebook instagram แคปชั่น ดาวน์โหลด" }
   ];
+
+  var DEFAULT_SLUG = "หน้าแรก";
 
   var contentEl = document.getElementById("doc-content");
   var navEl = document.getElementById("side-nav");
@@ -52,7 +55,7 @@
     order.forEach(function (g) {
       html += '<div class="group-label">' + g + "</div>";
       groups[g].forEach(function (p) {
-        html += '<a href="#/' + p.slug + '" data-slug="' + p.slug + '">' + p.label + "</a>";
+        html += '<a href="#/' + encodeURIComponent(p.slug) + '" data-slug="' + p.slug + '">' + p.label + "</a>";
       });
     });
     navEl.innerHTML = html || '<p style="padding:0 10px;color:var(--ink-soft);font-size:0.85rem;">ไม่พบผลลัพธ์</p>';
@@ -69,7 +72,9 @@
 
   function currentSlug() {
     var h = window.location.hash.replace(/^#\/?/, "");
-    return h || "index";
+    if (!h) return DEFAULT_SLUG;
+    try { h = decodeURIComponent(h); } catch (e) {}
+    return h || DEFAULT_SLUG;
   }
 
   // --- minimal front-matter stripper (YAML between leading --- ... ---) ---
@@ -102,8 +107,10 @@
     var links = div.querySelectorAll("a[href$='.md']");
     for (var j = 0; j < links.length; j++) {
       var href = links[j].getAttribute("href");
+      // ลิงก์ในไฟล์ .md อาจถูก encode มาแล้วหรือเป็นไทยดิบ — decode ก่อนแล้วค่อย encode ใหม่ให้สม่ำเสมอ
       var slug = href.replace(/\.md$/, "");
-      links[j].setAttribute("href", "#/" + slug);
+      try { slug = decodeURIComponent(slug); } catch (e) {}
+      links[j].setAttribute("href", "#/" + encodeURIComponent(slug));
     }
     return div.innerHTML;
   }
@@ -114,7 +121,7 @@
       return;
     }
     contentEl.innerHTML = '<p style="color:var(--ink-soft)">กำลังโหลด…</p>';
-    fetch("content/" + slug + ".md", { cache: "no-cache" })
+    fetch("content/" + encodeURIComponent(slug) + ".md", { cache: "no-cache" })
       .then(function (r) {
         if (!r.ok) throw new Error("not found");
         return r.text();
