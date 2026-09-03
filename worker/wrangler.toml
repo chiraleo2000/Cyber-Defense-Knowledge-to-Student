@@ -8,18 +8,20 @@ compatibility_date = "2024-09-01"
 # ตั้งเป็น "*" ชั่วคราวได้ตอนทดสอบ แต่แนะนำให้ระบุให้ตรงก่อนใช้งานจริง เพื่อกันคนอื่นเรียก worker นี้ไปใช้ฟรี
 ALLOWED_ORIGIN = "*"
 
-# ชื่อโมเดลที่จะส่งไปยัง upstream (ปรับตามที่ผู้ให้บริการ/เซิร์ฟเวอร์ของคุณกำหนด)
-MODEL_NAME = "default"
+# ชื่อโมเดล Pathumma (ThaiLLM ของ NECTEC) ที่จะส่งไปยัง upstream
+# - Featherless.ai:  "nectec/Pathumma-llm-text-1.0.0"  หรือ  "nectec/thai-research-gemma-3-27b-it"
+# - self-host เอง:   ใช้ชื่อโมเดลตามที่โหลดไว้บนเซิร์ฟเวอร์ vLLM/Ollama ของคุณ
+MODEL_NAME = "nectec/Pathumma-llm-text-1.0.0"
 
 # ----------------------------------------------------------------------------
-# ค่าที่เป็นความลับ (API key, upstream URL หากไม่อยากเปิดเผย) ห้ามใส่ในไฟล์นี้
-# ให้ตั้งผ่านคำสั่งบรรทัดคำสั่งแทน (ดูวิธีทำใน worker/README.md):
+# ค่าที่เป็นความลับ (API key, upstream URL) ห้ามใส่ในไฟล์นี้
+# ให้ตั้งผ่านบรรทัดคำสั่งแทน (ดูวิธีทำใน worker/README.md):
 #
-#   wrangler secret put UPSTREAM_API_KEY
-#   wrangler secret put UPSTREAM_BASE_URL
+#   wrangler secret put UPSTREAM_API_KEY     # API key ของผู้ให้บริการที่โฮสต์ Pathumma
+#   wrangler secret put UPSTREAM_BASE_URL    # เช่น https://api.featherless.ai/v1  (ไม่ต้องมี /chat/completions ต่อท้าย)
 #
-# ตัวอย่าง UPSTREAM_BASE_URL:
-#   - เซิร์ฟเวอร์ vLLM ที่ self-host เอง:      https://your-server.example.com/v1
-#   - Ollama (โหมด OpenAI-compatible):          https://your-ollama-host.example.com/v1
-#   - บริการอื่นที่ key นี้ใช้ได้จริง (ต้องทดสอบเอง เนื่องจากยังไม่ยืนยันว่า key นี้ผูกกับ endpoint ใด)
+# ตัวอย่าง UPSTREAM_BASE_URL สำหรับ Pathumma:
+#   - Featherless.ai (โฮสต์ Pathumma ให้):      https://api.featherless.ai/v1
+#   - self-host เองด้วย vLLM (OpenAI-compatible): https://your-server.example.com/v1
+#   - self-host เองด้วย Ollama:                  https://your-ollama-host.example.com/v1
 # ----------------------------------------------------------------------------

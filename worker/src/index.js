@@ -7,12 +7,17 @@
  * key จะรั่วถาวรอยู่ใน git history — worker นี้จึงทำหน้าที่เป็น "ตัวกลาง" เก็บ key ไว้ฝั่งเซิร์ฟเวอร์
  * (เป็น Cloudflare Secret ที่มองไม่เห็นจาก client) แล้วส่งต่อคำขอแทน
  *
- * หมายเหตุสำคัญเรื่อง Pathumma: จากการตรวจสอบ ณ ตอนที่เขียน worker นี้ Pathumma (ของ NECTEC)
- * เป็นชุดโมเดลโอเพนซอร์สที่เผยแพร่ให้ "self-host" เอง (ผ่าน llama.cpp / vLLM / Ollama) ไม่ได้มี
- * API สาธารณะแบบ ChatGPT ที่เรียกผ่านอินเทอร์เน็ตได้ทันที ดังนั้น worker นี้จึงถูกออกแบบให้ยืดหยุ่น:
- * รองรับ endpoint แบบ "OpenAI-compatible Chat Completions" (มาตรฐานที่ vLLM, Ollama, text-generation-webui,
- * llama.cpp server ฯลฯ ใช้ตรงกัน) — ไม่ว่า key ที่มีจะใช้กับบริการใดในที่สุด แค่ตั้งค่า UPSTREAM_BASE_URL
- * และ UPSTREAM_API_KEY (secret) ให้ตรงกับบริการนั้น worker นี้ก็ใช้งานได้ทันทีโดยไม่ต้องแก้โค้ด
+ * หลังบ้านใช้ Pathumma (ThaiLLM ของ NECTEC): worker นี้เรียกโมเดล Pathumma ผ่าน endpoint แบบ
+ * "OpenAI-compatible Chat Completions" ซึ่งเป็นมาตรฐานที่ผู้ให้บริการโฮสต์ Pathumma รองรับ เช่น
+ *   - Featherless.ai        UPSTREAM_BASE_URL = https://api.featherless.ai/v1
+ *                           MODEL_NAME        = nectec/Pathumma-llm-text-1.0.0
+ *   - self-host เอง (vLLM/Ollama)  UPSTREAM_BASE_URL = https://your-server.example.com/v1
+ *                           MODEL_NAME        = ชื่อโมเดล Pathumma ที่โหลดไว้บนเซิร์ฟเวอร์
+ * ตั้งค่า UPSTREAM_BASE_URL + MODEL_NAME (ใน wrangler.toml) และ UPSTREAM_API_KEY (secret) ให้ตรงกับ
+ * ผู้ให้บริการที่เลือก โดยไม่ต้องแก้โค้ดนี้
+ *
+ * Pathumma รุ่นใหม่ (เช่น 4.0.0) เป็น reasoning model ที่ใส่ "ร่องรอยการคิด" ไว้ใน <think>...</think>
+ * ก่อนคำตอบจริง — worker นี้จะตัดส่วน <think> ออกให้อัตโนมัติ เพื่อส่งเฉพาะคำตอบสุดท้ายกลับไปให้ผู้ใช้
  *
  * Endpoint ที่ worker นี้เปิดให้ใช้:
  *   POST /chat   body: { "messages": [{role:"user"|"assistant", content:"..."}, ...] }
@@ -30,6 +35,17 @@ function corsHeaders(env) {
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
   };
+}
+
+// ตัด "ร่องรอยการคิด" ที่โมเดล reasoning (เช่น Pathumma 4.0) ใส่มาใน <think>...</think>
+// ออกให้เหลือเฉพาะคำตอบสุดท้าย — รองรับกรณีที่มีแท็กเปิดแต่ไม่มีแท็กปิดด้วย
+function stripThinking(text) {
+  if (!text) return "";
+  let out = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  // เผื่อกรณีถูกตัด token ก่อนปิดแท็ก: ถ้ายังเหลือ <think> ค้าง ให้ตัดตั้งแต่ตรงนั้นทิ้ง
+  const openIdx = out.search(/<think>/i);
+  if (openIdx !== -1) out = out.slice(0, openIdx);
+  return out.trim();
 }
 
 function jsonResponse(body, status, env) {
@@ -96,7 +112,7 @@ export default {
     };
 
     const upstreamBody = {
-      model: env.MODEL_NAME || "default",
+      model: env.MODEL_NAME || "nectec/Pathumma-llm-text-1.0.0",
       messages: [systemPrompt, ...safeMessages],
       max_tokens: MAX_REPLY_TOKENS,
       temperature: 0.4,
@@ -136,10 +152,12 @@ export default {
       return jsonResponse({ error: "upstream_bad_json" }, 502, env);
     }
 
-    const reply =
+    let reply =
       (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ||
       data.reply ||
       "";
+
+    reply = stripThinking(reply);
 
     if (!reply) {
       return jsonResponse({ error: "empty_reply" }, 502, env);

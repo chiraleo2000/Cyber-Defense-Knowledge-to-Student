@@ -5,19 +5,31 @@ Worker นี้ทำหน้าที่เป็น "ตัวกลาง" 
 ในเว็บแอปจึงจะใช้งานได้ (ถ้าไม่ deploy เว็บแอปจะยังใช้งานได้ปกติทุกส่วน ยกเว้นฟีเจอร์แชทกับผู้ช่วย AI
 ซึ่งจะแสดงข้อความแจ้งว่ายังไม่พร้อมใช้งาน แทนที่จะ error)
 
-## ก่อนเริ่ม: เรื่องสำคัญเกี่ยวกับ Pathumma API key
+## หลังบ้านใช้ Pathumma (ThaiLLM ของ NECTEC)
 
-จากการตรวจสอบ ณ ตอนที่จัดทำโปรเจกต์นี้ **Pathumma (ของ NECTEC) เป็นชุดโมเดลโอเพนซอร์สที่เผยแพร่ให้
-"self-host" เอง** ผ่านเครื่องมืออย่าง llama.cpp, vLLM หรือ Ollama — ไม่พบ API สาธารณะที่เปิดให้เรียกผ่าน
-อินเทอร์เน็ตได้ทันทีแบบ ChatGPT API ดังนั้น **API key ที่คุณมี อาจไม่ได้ผูกกับ endpoint สาธารณะใดๆ** เลย
+ผู้ช่วย AI ในเว็บแอปเรียกโมเดลภาษาไทย **Pathumma** ผ่าน worker นี้ Pathumma เป็นโมเดลโอเพนซอร์ส
+(ดู [huggingface.co/nectec](https://huggingface.co/nectec)) ที่ใช้งานได้ 2 ทางหลัก โดยทั้งสองทางพูดภาษา
+มาตรฐานเดียวกันคือ **OpenAI-compatible Chat Completions** worker นี้จึงเรียกได้โดยไม่ต้องแก้โค้ด:
 
-**แนะนำให้ทดสอบ key ก่อน deploy จริง** โดยลองยิง request ตรงด้วย Postman หรือ curl ไปยัง endpoint ที่คุณ
-คิดว่า key นี้ใช้ได้ (เช่นบริการที่ให้ key มา) หากได้ผลลัพธ์กลับมาถูกต้อง ค่อยนำ URL และ key นั้นมาตั้งค่า
-worker นี้ตามขั้นตอนด้านล่าง
+### ทางที่ 1 (ง่ายสุด): ใช้ผู้ให้บริการที่โฮสต์ Pathumma ให้แล้ว
 
-หากไม่มี endpoint ที่ยืนยันได้ อีกทางเลือกคือ **self-host โมเดล Pathumma เอง** บนเซิร์ฟเวอร์ที่มี GPU
-เพียงพอ (ดูวิธีที่ [huggingface.co/nectec](https://huggingface.co/nectec)) แล้วรันผ่าน vLLM หรือ Ollama
-ในโหมด OpenAI-compatible API จากนั้นนำ URL เซิร์ฟเวอร์ของคุณเองมาตั้งค่าแทน
+ตัวอย่าง [Featherless.ai](https://featherless.ai) ที่มีโมเดล Pathumma พร้อมใช้:
+
+- `UPSTREAM_BASE_URL` = `https://api.featherless.ai/v1`
+- `MODEL_NAME` = `nectec/Pathumma-llm-text-1.0.0` (หรือ `nectec/thai-research-gemma-3-27b-it`)
+- `UPSTREAM_API_KEY` = API key จากบัญชีผู้ให้บริการนั้น
+
+### ทางที่ 2: self-host โมเดล Pathumma เอง
+
+รันบนเซิร์ฟเวอร์ที่มี GPU เพียงพอด้วย vLLM หรือ Ollama ในโหมด OpenAI-compatible API แล้วตั้ง
+`UPSTREAM_BASE_URL` เป็น URL เซิร์ฟเวอร์ของคุณ (เช่น `https://your-server.example.com/v1`) และ
+`MODEL_NAME` ตามชื่อโมเดลที่โหลดไว้
+
+> **ทดสอบ key/endpoint ก่อน deploy เสมอ** ด้วย curl ยิงตรงไป `<UPSTREAM_BASE_URL>/chat/completions`
+> เพื่อยืนยันว่าใช้งานได้จริง แล้วค่อยนำมาตั้งค่า worker
+
+> **หมายเหตุ:** Pathumma รุ่นใหม่ (เช่น 4.0.0) เป็น reasoning model ที่ใส่ร่องรอยการคิดใน `<think>...</think>`
+> worker นี้ตัดส่วนนั้นออกให้อัตโนมัติแล้ว จึงส่งเฉพาะคำตอบสุดท้ายกลับไปที่เว็บแอป
 
 ## ขั้นตอน Deploy
 
@@ -43,11 +55,16 @@ wrangler deploy
 
 ## หลัง Deploy: เชื่อมกับเว็บแอป
 
-1. เปิดไฟล์เว็บแอป (`webapp/check-kon-oon.html` หรือหน้า Agent บนเว็บแอปเวอร์ชันที่เผยแพร่)
-2. มองหาค่า `AGENT_PROXY_URL` ที่ต้นไฟล์ (ดูคอมเมนต์กำกับไว้ชัดเจน)
-3. แก้ไขให้เป็น URL ของ worker ที่ได้จากขั้นตอนก่อนหน้า แล้วบันทึก/เผยแพร่ใหม่
-4. กลับไปที่ `wrangler.toml` แก้ `ALLOWED_ORIGIN` ให้ตรงกับโดเมนเว็บไซต์จริงของคุณ (แทน `"*"`) แล้ว
-   `wrangler deploy` อีกครั้ง เพื่อป้องกันไม่ให้เว็บไซต์อื่นเรียกใช้ worker ของคุณฟรี
+เลือกวิธีใดวิธีหนึ่งเพื่อชี้เว็บแอปไปที่ worker (URL ต้องลงท้ายด้วย `/chat`):
+
+- **ง่ายสุด ไม่ต้องแก้โค้ด:** เปิดเว็บแอปด้วยพารามิเตอร์ครั้งเดียว เบราว์เซอร์จะจำไว้ให้เอง
+  `https://<username>.github.io/webapp/?agent=https://<worker>.workers.dev/chat`
+- หรือใน DevTools console: `localStorage.setItem('cko-agent-url','https://<worker>.workers.dev/chat')`
+- **หรือฝังถาวรในเว็บ:** แก้ค่า `AGENT_PROXY_URL_DEFAULT` ที่ต้นสคริปต์ของ `webapp-source/check-kon-oon.html`
+  (ดูคอมเมนต์กำกับ) แล้วคัดลอกทับ `docs/webapp/index.html` ด้วย `cp webapp-source/check-kon-oon.html docs/webapp/index.html`
+
+จากนั้นกลับไปที่ `wrangler.toml` แก้ `ALLOWED_ORIGIN` ให้ตรงกับโดเมนเว็บไซต์จริง (แทน `"*"` เช่น
+`https://<username>.github.io`) แล้ว `wrangler deploy` อีกครั้ง เพื่อกันเว็บอื่นเรียกใช้ worker ของคุณฟรี
 
 ## ทดสอบว่า worker ทำงานถูกต้อง
 

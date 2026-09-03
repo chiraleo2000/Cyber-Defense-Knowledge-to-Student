@@ -578,7 +578,7 @@
         </div>
         <div class="privacy-note">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.6"/></svg>
-          ข้อความที่พิมพ์จะถูกส่งไปยังบริการผู้ช่วย AI ที่ตั้งค่าไว้ (ผ่านตัวกลางที่ไม่เก็บ API key ไว้ฝั่งเว็บ) เพื่อประมวลผลคำตอบเท่านั้น — หากยังไม่ได้ตั้งค่าผู้ช่วย AI ระบบจะตอบด้วยคำแนะนำพื้นฐานแบบออฟไลน์แทน คำแนะนำจากผู้ช่วยเป็นเพียงข้อมูลเบื้องต้น ไม่ใช่คำวินิจฉัยทางกฎหมายหรือการเงิน
+          ข้อความที่พิมพ์จะถูกส่งไปยังโมเดลภาษาไทย <b>Pathumma (NECTEC)</b> ที่ตั้งค่าไว้ ผ่านตัวกลาง (Cloudflare Worker) ที่ไม่เก็บ API key ไว้ฝั่งเว็บ เพื่อประมวลผลคำตอบเท่านั้น — หากยังไม่ได้ตั้งค่าผู้ช่วย AI ระบบจะตอบด้วยคำแนะนำพื้นฐานแบบออฟไลน์แทน คำแนะนำจากผู้ช่วยเป็นเพียงข้อมูลเบื้องต้น ไม่ใช่คำวินิจฉัยทางกฎหมายหรือการเงิน
         </div>
       </div>
     </div>
@@ -1249,10 +1249,25 @@
   });
 
   // ---------- Agent (AI assistant) chat ----------
-  // ตั้งค่า URL ของ Cloudflare Worker proxy ตรงนี้ หลัง deploy worker แล้ว (ดู worker/README.md)
+  // ตั้งค่า URL ของ Cloudflare Worker proxy (หลังบ้านที่เรียกโมเดล Pathumma) — ดู worker/README.md
   // ตัวอย่าง: 'https://check-kon-oon-agent-proxy.<your-subdomain>.workers.dev/chat'
-  // ปล่อยว่างไว้ = ใช้โหมดตอบคำถามพื้นฐานแบบออฟไลน์ (rule-based) แทนโดยอัตโนมัติ
-  var AGENT_PROXY_URL = '';
+  //
+  // ตั้งค่าได้ 3 วิธี (ไม่ต้องแก้โค้ดก็ได้):
+  //   1) ใส่ค่า default ตรงนี้เลย (เผยแพร่พร้อมเว็บ)
+  //   2) เปิดเว็บด้วยพารามิเตอร์ ?agent=<worker-url>/chat  (จะถูกจำไว้ในเบราว์เซอร์อัตโนมัติ)
+  //   3) ตั้งใน console:  localStorage.setItem('cko-agent-url','https://.../chat')
+  // ปล่อยว่างทั้งหมด = ใช้โหมดตอบคำถามพื้นฐานแบบออฟไลน์ (rule-based) โดยอัตโนมัติ
+  var AGENT_PROXY_URL_DEFAULT = '';
+  var AGENT_PROXY_URL = (function () {
+    try {
+      var qs = new URLSearchParams(window.location.search);
+      var fromQuery = qs.get('agent');
+      if (fromQuery) { localStorage.setItem('cko-agent-url', fromQuery); return fromQuery; }
+      var saved = localStorage.getItem('cko-agent-url');
+      if (saved) return saved;
+    } catch (e) {}
+    return AGENT_PROXY_URL_DEFAULT;
+  })();
 
   var agentLog = document.getElementById('agent-chat-log');
   var agentInput = document.getElementById('agent-input');
@@ -1289,7 +1304,7 @@
       .then(function(res){
         if(res.ok && res.data && res.data.reply){
           agentOnline = true;
-          agentStatusText.textContent = 'เชื่อมต่อผู้ช่วย AI สำเร็จ — พร้อมตอบคำถาม';
+          agentStatusText.textContent = 'เชื่อมต่อผู้ช่วย AI (Pathumma) สำเร็จ — พร้อมตอบคำถาม';
         } else {
           agentOnline = false;
           agentStatusText.textContent = 'ผู้ช่วย AI ออนไลน์ยังไม่พร้อมใช้งาน (' + (res.data && res.data.error ? res.data.error : 'ไม่ทราบสาเหตุ') + ') — ใช้โหมดคำแนะนำพื้นฐานแบบออฟไลน์แทน';
