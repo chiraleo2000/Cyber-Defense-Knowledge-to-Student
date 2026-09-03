@@ -58,16 +58,34 @@
 ## การตั้งค่า GitHub Pages (deploy อัตโนมัติ)
 
 โปรเจกต์นี้มี GitHub Actions workflow ที่ไฟล์ `.github/workflows/deploy-pages.yml` ซึ่งจะเผยแพร่
-โฟลเดอร์ `docs/` ขึ้น GitHub Pages โดยอัตโนมัติทุกครั้งที่ push เข้าสาขา `main` ตั้งค่าครั้งแรกดังนี้:
+โฟลเดอร์ `docs/` ขึ้น GitHub Pages โดยอัตโนมัติทุกครั้งที่ push เข้าสาขา `main`
 
-1. ไปที่ **Settings → Pages** ของ repository
-2. หัวข้อ **Build and deployment → Source** เลือก **GitHub Actions**
-3. push โค้ดเข้า `main` (หรือกด Run workflow เองจากแท็บ **Actions**) — เว็บจะเผยแพร่อัตโนมัติ
+workflow ตั้ง `enablement: true` ไว้ จึงพยายาม **เปิด Pages ให้อัตโนมัติ** ตอนรันครั้งแรก โดยปกติ
+จึงไม่ต้องตั้งค่าใน Settings เอง — แค่ push เข้า `main` หรือกด Run workflow จากแท็บ **Actions**
 
-เมื่อ deploy สำเร็จ URL ของเว็บจะปรากฏในแท็บ Actions และที่ Settings → Pages
+เมื่อ deploy สำเร็จ URL ของเว็บคือ
+`https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/`
 
-> ทางเลือกแบบไม่ใช้ Actions: ที่ Settings → Pages เลือก Source เป็น **Deploy from a branch**
-> แล้วเลือก branch `main` โฟลเดอร์ `/docs` ก็ใช้งานได้เช่นกัน (แต่ workflow ให้การควบคุมและ log ที่ดีกว่า)
+**หาก workflow ล้มเหลวด้วย error `Get Pages site failed ... Not Found` หรือ `403`** (พบในบางบัญชี/สิทธิ์)
+ให้เปิดเองครั้งเดียวตามนี้ แล้วกด **Re-run**:
+
+1. **Settings → Pages → Build and deployment → Source** เลือก **GitHub Actions**
+2. (ถ้าจำเป็น) **Settings → Actions → General → Workflow permissions** ตั้งเป็น **Read and write permissions**
+3. กลับไปแท็บ **Actions** แล้ว **Re-run** งานที่ล้มเหลว
+
+> ทางเลือกแบบไม่ใช้ Actions (เร็วกว่าถ้าติดที่สิทธิ์ Actions): ที่ Settings → Pages เลือก
+> Source เป็น **Deploy from a branch** แล้วเลือก branch `main` โฟลเดอร์ `/docs`
+
+## ขั้นตอนที่เหลือ (ต้องใช้บัญชีของคุณ)
+
+1. **เปิด GitHub Pages** ตามหัวข้อด้านบน (ครั้งเดียว)
+2. **Deploy worker** — ดู `worker/README.md` มี 2 ทาง:
+   - Windows: `cd worker` แล้ว `powershell -File .\deploy.ps1` (ต้องมี Node.js + บัญชี Cloudflare + คีย์ Pathumma)
+   - หรือใส่ GitHub Secrets แล้วกด Run workflow **Deploy Cloudflare Worker**
+3. **ชี้เว็บแอปไปที่ worker** เปิดครั้งเดียว:
+   `https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/webapp/?agent=https://<worker>.workers.dev/chat`
+
+ทดสอบ worker หลัง deploy: `powershell -File worker\test-chat.ps1 -WorkerUrl https://<worker>.workers.dev`
 
 **สำคัญ**: `docs/webapp/index.html` เป็นสำเนาที่เผยแพร่จริง ส่วน `webapp-source/check-kon-oon.html`
 เป็นต้นฉบับสำหรับแก้ไข เมื่อแก้ไฟล์ต้นฉบับแล้วให้คัดลอกทับไฟล์ในตำแหน่งที่เผยแพร่ด้วยเสมอ:
@@ -75,20 +93,21 @@
 ```bash
 cp webapp-source/check-kon-oon.html docs/webapp/index.html
 ```
+
 ## ความโปร่งใสของเนื้อหา (สำคัญ — โปรดอ่านก่อนเผยแพร่)
 
 เพื่อไม่ให้มีข้อมูลเท็จหรือสถิติที่แต่งขึ้นปะปนอยู่ในเนื้อหา จึงขอสรุปข้อจำกัดที่ตั้งใจไว้ตั้งแต่แรก:
 
-- **คู่มือรับมือเมื่อถูกหลอก** (`docs/content/deal-with-scam.md`) — คู่มือปฏิบัติเร่งด่วน รวมหลัก "4 ไม่"
+- **ถูกหลอกแล้วทำอย่างไร** (`docs/content/ถูกหลอกแล้วทำอย่างไร.md`) — คู่มือปฏิบัติเร่งด่วน รวมหลัก "4 ไม่"
   ทางการของกระทรวง DE, ขั้นตอนแจ้งความ/อายัดบัญชี และสิทธิ์ตามกฎหมาย 72 ชั่วโมง อ้างอิงแหล่งข่าว/หน่วยงาน
   ทางการ (DE, AOC 1441, พ.ร.ก. 2566) กำกับทุกจุด
-- **สถิติ/คดีในประเทศไทย** (`docs/content/domestic-cases.md`) — อ้างอิงจากข่าวและแหล่งข้อมูล
+- **สถิติ/คดีในประเทศไทย** (`docs/content/คดีจริงในไทย.md`) — อ้างอิงจากข่าวและแหล่งข้อมูล
   ที่ตรวจสอบแล้วเท่านั้น มีลิงก์แหล่งที่มากำกับทุกรายการ
-- **มุมมองระดับโลก** (`docs/content/international-cases.md`) — ตั้งใจใส่เฉพาะสถิติที่ยืนยันได้จริง
+- **มุมมองระดับโลก** (`docs/content/มุมมองระดับโลก.md`) — ตั้งใจใส่เฉพาะสถิติที่ยืนยันได้จริง
   (FBI IC3 Annual Report 2024) และคำอธิบายรูปแบบภัยทั่วไปเท่านั้น **ไม่ได้ใส่กรณีศึกษาต่างประเทศ
   แบบเจาะจง** เนื่องจากไม่สามารถตรวจสอบแหล่งข่าวเฉพาะกรณีได้ครบถ้วนในขณะจัดทำ — หากต้องการเพิ่ม
   กรณีศึกษาต่างประเทศ แนะนำให้ผู้ดูแลเว็บไซต์ตรวจสอบแหล่งข่าวเองก่อนเพิ่มเนื้อหา
-- **แบบสำรวจ** (`docs/content/survey-report.md`) — ไฟล์นี้เป็น **แบบสำรวจพร้อมใช้** (คำถาม + แผนการ
+- **แบบสำรวจ** (`docs/content/แบบสำรวจความตระหนักรู้.md`) — ไฟล์นี้เป็น **แบบสำรวจพร้อมใช้** (คำถาม + แผนการ
   วิเคราะห์ + คำแนะนำขนาดกลุ่มตัวอย่าง) **ยังไม่มีการเก็บข้อมูลจริง** เมื่อเก็บข้อมูลจริงแล้วให้แทนที่
   เนื้อหาในไฟล์นี้ด้วยผลสำรวจจริง
 
