@@ -23,8 +23,9 @@
 ```
 .
 ├── .github/workflows/
-│   └── deploy-pages.yml       ← GitHub Actions: deploy docs/ ขึ้น Pages อัตโนมัติเมื่อ push เข้า main
-├── docs/                     ← เนื้อหาที่ GitHub Pages จะเผยแพร่ (ตั้ง Pages ให้ deploy จากโฟลเดอร์นี้)
+│   ├── deploy-pages.yml       ← publish docs/ ไปสาขา gh-pages อัตโนมัติเมื่อ push เข้า main
+│   └── deploy-worker.yml      ← deploy Cloudflare Worker (Agent Pathumma) แบบกด Run เอง
+├── docs/                     ← เนื้อหาเว็บไซต์ (ถูก publish ไปสาขา gh-pages เพื่อให้ Pages เสิร์ฟ)
 │   ├── .nojekyll             ← ปิดการประมวลผล Jekyll เพื่อให้ assets/ ถูกเสิร์ฟตรงๆ
 │   ├── index.html            ← หน้าเว็บหลัก (SPA เรนเดอร์ markdown)
 │   ├── content/*.md          ← เนื้อหาทุกหน้า (ชื่อไฟล์ภาษาไทย — แก้ไขที่นี่)
@@ -55,37 +56,48 @@
 3. รัน `python tools/build_pdfs.py` เพื่อสร้าง/อัปเดตไฟล์ PDF ให้ตรงกับเนื้อหา
 4. เพิ่มลิงก์ในหน้า `docs/content/ดาวน์โหลด.md` (ถ้าเป็นหน้าใหม่)
 
-## การตั้งค่า GitHub Pages (deploy อัตโนมัติ)
+## การตั้งค่า GitHub Pages (deploy อัตโนมัติผ่านสาขา gh-pages)
 
-โปรเจกต์นี้มี GitHub Actions workflow ที่ไฟล์ `.github/workflows/deploy-pages.yml` ซึ่งจะเผยแพร่
-โฟลเดอร์ `docs/` ขึ้น GitHub Pages โดยอัตโนมัติทุกครั้งที่ push เข้าสาขา `main`
+🌐 **เว็บไซต์เผยแพร่แล้วที่:** https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/
 
-workflow ตั้ง `enablement: true` ไว้ จึงพยายาม **เปิด Pages ให้อัตโนมัติ** ตอนรันครั้งแรก โดยปกติ
-จึงไม่ต้องตั้งค่าใน Settings เอง — แค่ push เข้า `main` หรือกด Run workflow จากแท็บ **Actions**
+workflow `.github/workflows/deploy-pages.yml` จะนำเนื้อหาในโฟลเดอร์ `docs/` ไป **publish ลงสาขา
+`gh-pages`** (ที่ราก) โดยอัตโนมัติทุกครั้งที่ push เข้าสาขา `main` (ใช้ action `JamesIves/github-pages-deploy-action`)
+วิธีนี้ **ไม่เรียก Pages REST API** จึงไม่เจอ error `Get Pages site failed / Not Found` ที่เคยทำให้ล้มเหลว
 
-เมื่อ deploy สำเร็จ URL ของเว็บคือ
-`https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/`
+### ตั้งค่า Source ครั้งเดียว
 
-**หาก workflow ล้มเหลวด้วย error `Get Pages site failed ... Not Found` หรือ `403`** (พบในบางบัญชี/สิทธิ์)
-ให้เปิดเองครั้งเดียวตามนี้ แล้วกด **Re-run**:
+หลัง workflow รันสำเร็จครั้งแรก (มีสาขา `gh-pages` แล้ว) ตั้งค่าให้ GitHub เสิร์ฟจากสาขานั้น:
 
-1. **Settings → Pages → Build and deployment → Source** เลือก **GitHub Actions**
-2. (ถ้าจำเป็น) **Settings → Actions → General → Workflow permissions** ตั้งเป็น **Read and write permissions**
-3. กลับไปแท็บ **Actions** แล้ว **Re-run** งานที่ล้มเหลว
+1. repo → **Settings → Pages**
+2. **Build and deployment → Source** เลือก **Deploy from a branch**
+3. **Branch** เลือก `gh-pages` โฟลเดอร์ `/ (root)` แล้ว **Save** รอ 1–2 นาที
 
-> ทางเลือกแบบไม่ใช้ Actions (เร็วกว่าถ้าติดที่สิทธิ์ Actions): ที่ Settings → Pages เลือก
-> Source เป็น **Deploy from a branch** แล้วเลือก branch `main` โฟลเดอร์ `/docs`
+หลังจากนี้ push เข้า `main` ทุกครั้ง เว็บจะอัปเดตอัตโนมัติ ไม่ต้องตั้งอะไรอีก
 
-## ขั้นตอนที่เหลือ (ต้องใช้บัญชีของคุณ)
+## เปิดใช้งาน Agent (Pathumma) แบบเต็มระบบ
 
-1. **เปิด GitHub Pages** ตามหัวข้อด้านบน (ครั้งเดียว)
-2. **Deploy worker** — ดู `worker/README.md` มี 2 ทาง:
-   - Windows: `cd worker` แล้ว `powershell -File .\deploy.ps1` (ต้องมี Node.js + บัญชี Cloudflare + คีย์ Pathumma)
-   - หรือใส่ GitHub Secrets แล้วกด Run workflow **Deploy Cloudflare Worker**
-3. **ชี้เว็บแอปไปที่ worker** เปิดครั้งเดียว:
+> **ทำไมฝังใน GitHub Pages ทั้งหมดไม่ได้?** Pages เสิร์ฟได้แค่ไฟล์ static รันโค้ดฝั่งเซิร์ฟเวอร์และ
+> เก็บ API key ให้ปลอดภัยไม่ได้ (ใครเปิด View Source ก็เห็น key) การเรียกโมเดล Pathumma ต้องใช้ key
+> จึงต้องมี **Cloudflare Worker เป็นตัวกลาง** เก็บ key ไว้ฝั่งเซิร์ฟเวอร์ — เว็บบน Pages แค่ส่งข้อความ
+> ไปที่ Worker แล้ว Worker คุยกับ Pathumma แทน (Worker ฟรี 100,000 request/วัน)
+
+**ขั้นตอน (ทำครั้งเดียว):**
+
+1. **Deploy Worker พร้อมคีย์ Pathumma** — เลือกทางใดทางหนึ่ง:
+   - **ไม่ต้องลงอะไรบนเครื่อง (แนะนำ):** ใส่ GitHub Secrets (repo → Settings → Secrets and variables → Actions):
+     `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `UPSTREAM_API_KEY`, `UPSTREAM_BASE_URL`
+     แล้วไปแท็บ **Actions → Deploy Cloudflare Worker → Run workflow**
+   - **หรือรันบนเครื่อง (Windows):** `cd worker` แล้ว `powershell -File .\deploy.ps1` (ต้องมี Node.js + บัญชี Cloudflare)
+2. **ชี้เว็บแอปไปที่ Worker** เปิดลิงก์นี้ครั้งเดียว (เบราว์เซอร์จะจำไว้เอง):
    `https://chiraleo2000.github.io/Cyber-Defense-Knowledge-to-Student/webapp/?agent=https://<worker>.workers.dev/chat`
 
+ค่า Pathumma ที่ตั้งไว้แล้ว: `UPSTREAM_BASE_URL` เช่น `https://api.featherless.ai/v1`,
+`MODEL_NAME=nectec/Pathumma-llm-text-1.0.0` (ดูรายละเอียดใน `worker/README.md`)
 ทดสอบ worker หลัง deploy: `powershell -File worker\test-chat.ps1 -WorkerUrl https://<worker>.workers.dev`
+
+> ถ้ายังไม่ deploy Worker เว็บแอปยังใช้งานได้ปกติทุกส่วน เพียงแต่ผู้ช่วย AI จะตอบแบบออฟไลน์ (กฎเบื้องต้น) แทน
+
+📄 **คู่มือเปิด Agent แบบละเอียดทีละขั้นตอน:** ดูที่ [`AGENT-SETUP.md`](AGENT-SETUP.md)
 
 **สำคัญ**: `docs/webapp/index.html` เป็นสำเนาที่เผยแพร่จริง ส่วน `webapp-source/check-kon-oon.html`
 เป็นต้นฉบับสำหรับแก้ไข เมื่อแก้ไฟล์ต้นฉบับแล้วให้คัดลอกทับไฟล์ในตำแหน่งที่เผยแพร่ด้วยเสมอ:
