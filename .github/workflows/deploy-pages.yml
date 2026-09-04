@@ -1,6 +1,12 @@
-# เผยแพร่เว็บไซต์ (โฟลเดอร์ docs/) ขึ้น GitHub Pages ผ่าน GitHub Actions
-# ต้องตั้ง Settings -> Pages -> Source = "GitHub Actions" (คุณเปิดไว้แล้วตอนเพิ่ม workflow ผ่าน UI)
-name: Deploy static content to Pages
+# เผยแพร่เว็บไซต์ (โฟลเดอร์ docs/) ขึ้น GitHub Pages ผ่านสาขา gh-pages
+#
+# วิธีเปิดใช้งาน (ทำครั้งเดียว): repo -> Settings -> Pages ->
+#   Build and deployment -> Source = "Deploy from a branch"
+#   Branch = gh-pages , Folder = / (root) -> Save
+#
+# workflow นี้ push เนื้อหา docs/ ไปยังสาขา gh-pages ทุกครั้งที่แก้ไขบน main
+# (ไม่เรียก Pages REST API จึงไม่เจอ error "Get Pages site failed / Not Found")
+name: Deploy site to gh-pages
 
 on:
   push:
@@ -8,33 +14,22 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: "pages"
+  group: "pages-deploy"
   cancel-in-progress: false
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Publish docs/ to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          # เผยแพร่เฉพาะโฟลเดอร์ docs/ (เว็บไซต์อยู่ในนี้ ไม่ใช่รากทั้ง repo)
-          path: 'docs'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          branch: gh-pages
+          folder: docs
+          clean: true
