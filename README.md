@@ -99,6 +99,8 @@ workflow `.github/workflows/deploy-pages.yml` จะนำเนื้อหา�
 
 📄 **คู่มือเปิด Agent แบบละเอียดทีละขั้นตอน:** ดูที่ [`AGENT-SETUP.md`](AGENT-SETUP.md)
 
+📘 **คู่มือการใช้งาน + ผลการทดสอบระบบ:** ดูที่ [`USER-MANUAL.md`](USER-MANUAL.md) (ทดสอบทุกหน้า/PDF/ลิงก์แล้ว ผ่าน 31/31)
+
 **สำคัญ**: `docs/webapp/index.html` เป็นสำเนาที่เผยแพร่จริง ส่วน `webapp-source/check-kon-oon.html`
 เป็นต้นฉบับสำหรับแก้ไข เมื่อแก้ไฟล์ต้นฉบับแล้วให้คัดลอกทับไฟล์ในตำแหน่งที่เผยแพร่ด้วยเสมอ:
 

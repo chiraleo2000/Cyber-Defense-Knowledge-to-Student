@@ -35,3 +35,17 @@ powershell -File .\tools\selfhost-pathumma.ps1 -Tunnel  # + เปิด HTTPS �
 ```
 
 รายละเอียดการตั้ง `UPSTREAM_BASE_URL` ดูที่ `worker/README.md`
+
+## test_site.py — ทดสอบเว็บไซต์ก่อนเผยแพร่
+
+ตรวจว่าไฟล์หลัก, หน้าเนื้อหาทุกหน้า (.md), PDF, โปสเตอร์ โหลดได้จริง (HTTP 200) และลิงก์ภายในทุกหน้าไม่เสีย
+
+```bash
+# 1) เปิดเซิร์ฟเวอร์ในโฟลเดอร์ docs/
+python -m http.server 8910
+# 2) อีกหน้าต่างหนึ่ง รันชุดทดสอบ
+python tools/test_site.py 8910
+```
+
+ผลลัพธ์จะสรุป PASS/FAIL ต่อรายการ และรายการลิงก์เสีย (ควรได้ FAIL=0 และ "none")
+สคริปต์คืนค่า exit code 0 เมื่อผ่านทั้งหมด — ใช้ต่อใน CI ได้
