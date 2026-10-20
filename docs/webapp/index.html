@@ -39,21 +39,22 @@
     color-scheme: dark;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',system-ui,sans-serif;line-height:1.6;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Sarabun',system-ui,sans-serif;line-height:1.6;background-image:radial-gradient(circle at 1.5px 1.5px, color-mix(in srgb, var(--ink) 7%, transparent) 1.2px, transparent 1.2px);background-size:24px 24px;}
   h1,h2,h3,.disp{font-family:'Bai Jamjuree','Sarabun',sans-serif;font-weight:700;text-wrap:balance;}
   .mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;}
   a{color:var(--accent-ink);}
   ::selection{background:var(--accent);color:#fff;}
   .wrap{max-width:920px;margin:0 auto;padding:0 20px;}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 
   /* header */
   header.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb, var(--bg) 92%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);box-shadow:0 1px 0 0 rgba(0,0,0,0.02);}
   header.top::after{content:'';display:block;height:3px;background:linear-gradient(90deg, var(--hero-2), var(--danger), var(--warn));opacity:0.85;}
   .topbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:12px 20px;max-width:920px;margin:0 auto;}
-  .brand{display:flex;align-items:center;gap:10px;font-family:'Bai Jamjuree';font-weight:700;font-size:19px;letter-spacing:0.2px;flex:none;cursor:pointer;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Bai Jamjuree',sans-serif;font-weight:700;font-size:19px;letter-spacing:0.2px;flex:none;cursor:pointer;}
   .brand .dot{width:11px;height:11px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 4px var(--danger-bg);}
   nav.tabs{display:flex;flex-wrap:wrap;gap:5px;flex:1 1 auto;}
-  nav.tabs button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:'Sarabun';font-size:13.5px;font-weight:600;color:var(--ink-soft);background:transparent;border:1px solid transparent;padding:7px 12px;border-radius:100px;cursor:pointer;white-space:nowrap;transition:.15s;}
+  nav.tabs button{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:600;color:var(--ink-soft);background:transparent;border:1px solid transparent;padding:7px 12px;border-radius:100px;cursor:pointer;white-space:nowrap;transition:.15s;}
   nav.tabs button svg{width:14px;height:14px;flex:none;}
   nav.tabs button:hover{color:var(--ink);background:var(--surface-2);}
   nav.tabs button.active{color:var(--accent-ink);background:var(--accent-bg);border-color:var(--accent);}
@@ -63,13 +64,12 @@
   .ribbon svg{flex:none;margin-top:2px;}
 
   main{padding:0 0 90px;}
-  body{background-image:radial-gradient(circle at 1.5px 1.5px, color-mix(in srgb, var(--ink) 7%, transparent) 1.2px, transparent 1.2px);background-size:24px 24px;}
   .hero-band{margin:22px 0 34px;border-radius:22px;background:linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 100%);color:var(--hero-ink);padding:38px 40px 34px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
   .hero-band::before{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle, rgba(63,211,201,0.22) 0%, transparent 70%);}
   .hero-band::after{content:'';position:absolute;left:-40px;bottom:-80px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle, rgba(178,58,46,0.16) 0%, transparent 70%);}
   .hero-icon{position:absolute;right:36px;top:36px;width:64px;height:64px;opacity:0.9;}
   .hero{position:relative;z-index:1;padding:0;max-width:640px;}
-  .kicker{font-family:'Bai Jamjuree';font-size:13px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent-ink);margin:0 0 10px;}
+  .kicker{font-family:'Bai Jamjuree',sans-serif;font-size:13px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent-ink);margin:0 0 10px;}
   .hero-band .kicker{color:var(--hero-ink-soft);display:inline-flex;align-items:center;gap:8px;}
   .hero-band .kicker::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--danger);box-shadow:0 0 0 4px rgba(178,58,46,0.25);}
   .hero h1{font-size:38px;line-height:1.22;margin:0 0 14px;color:var(--ink);}
@@ -78,7 +78,7 @@
   .hero-band p{color:var(--hero-ink-soft);}
   .stat-row{display:flex;gap:10px;flex-wrap:wrap;}
   .stat{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.16);border-radius:12px;padding:10px 16px;backdrop-filter:blur(4px);}
-  .stat .n{font-family:'JetBrains Mono';font-weight:700;font-size:19px;color:#fff;}
+  .stat .n{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:19px;color:#fff;}
   .stat .l{font-size:12.5px;color:var(--hero-ink-soft);}
   @media (max-width:640px){ .hero-band{padding:28px 24px 26px;border-radius:16px;} .hero-icon{width:44px;height:44px;right:22px;top:22px;} .hero h1{font-size:29px;} }
 
@@ -93,7 +93,7 @@
   .tile:hover{border-color:var(--accent);transform:translateY(-1px);}
   .tile .ti{width:38px;height:38px;border-radius:10px;background:var(--accent-bg);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;flex:none;}
   .tile .ti svg{width:20px;height:20px;}
-  .tile b{font-family:'Bai Jamjuree';font-size:15px;}
+  .tile b{font-family:'Bai Jamjuree',sans-serif;font-size:15px;}
   .tile span{font-size:13px;color:var(--ink-soft);}
   .divider{border:none;border-top:1px solid var(--line);margin:34px 0;}
 
@@ -103,7 +103,7 @@
   .mod-head .kicker{margin-bottom:8px;}
   .mod-head h2{font-size:26px;margin:0 0 8px;}
   .mod-head p{color:var(--ink-soft);font-size:15.5px;max-width:68ch;margin:0;}
-  .crumb{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:'Sarabun';font-weight:600;font-size:13.5px;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:6px 14px 6px 10px;cursor:pointer;margin-bottom:18px;}
+  .crumb{display:inline-flex;align-items:center;gap:6px;font:inherit;font-family:'Sarabun',sans-serif;font-weight:600;font-size:13.5px;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:6px 14px 6px 10px;cursor:pointer;margin-bottom:18px;}
   .crumb:hover{color:var(--ink);border-color:var(--accent);}
 
   .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:24px;}
@@ -122,7 +122,7 @@
   .seg button.on{background:var(--accent);color:#fff;}
   .seg button.on.danger-on{background:var(--danger);}
 
-  .btn{font:inherit;font-family:'Bai Jamjuree';font-weight:600;font-size:15px;letter-spacing:.2px;padding:12px 22px;border-radius:11px;border:1px solid transparent;cursor:pointer;transition:.15s;}
+  .btn{font:inherit;font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:15px;letter-spacing:.2px;padding:12px 22px;border-radius:11px;border:1px solid transparent;cursor:pointer;transition:.15s;}
   .btn.primary{background:var(--accent);color:#fff;}
   .btn.primary:hover{filter:brightness(1.06);}
   .btn.ghost{background:transparent;border-color:var(--line);color:var(--ink);}
@@ -139,8 +139,8 @@
   .gauge-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;}
   .gauge{position:relative;width:200px;aspect-ratio:20/11;}
   .gauge svg{display:block;width:100%;height:100%;}
-  .gauge .num{position:absolute;left:0;right:0;top:52%;transform:translateY(-50%);margin:0;text-align:center;line-height:1;font-family:'JetBrains Mono';font-weight:700;font-size:40px;pointer-events:none;}
-  .tier-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border-radius:100px;font-family:'Bai Jamjuree';font-weight:700;font-size:15px;margin-top:6px;}
+  .gauge .num{position:absolute;left:0;right:0;top:52%;transform:translateY(-50%);margin:0;text-align:center;line-height:1;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:40px;pointer-events:none;}
+  .tier-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border-radius:100px;font-family:'Bai Jamjuree',sans-serif;font-weight:700;font-size:15px;margin-top:6px;}
   .tier-pill .d{width:9px;height:9px;border-radius:50%;}
   .tier-green{background:var(--safe-bg);color:var(--safe-ink);}
   .tier-green .d{background:var(--safe);}
@@ -170,7 +170,7 @@
   .chk.on{background:var(--danger-bg);border-color:var(--danger-line);}
   .chk input{margin-top:3px;width:17px;height:17px;accent-color:var(--danger);flex:none;}
   .chk .t{font-size:15px;}
-  .chk .t b{display:block;font-family:'Bai Jamjuree';font-weight:600;font-size:15px;margin-bottom:2px;}
+  .chk .t b{display:block;font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:15px;margin-bottom:2px;}
   .chk .t span{color:var(--ink-soft);font-size:13.5px;}
 
   /* case / scene box with illustration */
@@ -183,9 +183,9 @@
   @media (max-width:640px){ .case{flex-direction:column;align-items:stretch;} .case .scene{width:100%;height:190px;} }
 
   /* scanner */
-  textarea#scan-input{width:100%;min-height:160px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:14px;font:15px/1.6 'Sarabun';background:var(--surface-2);color:var(--ink);}
+  textarea#scan-input{width:100%;min-height:160px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:14px;font:15px/1.6 'Sarabun',sans-serif;background:var(--surface-2);color:var(--ink);}
   textarea#scan-input:focus{outline:2px solid var(--accent);outline-offset:1px;}
-  .scan-out{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--surface-2);min-height:160px;font-size:15px;white-space:pre-wrap;word-break:break-word;}
+  .scan-out{border:1px solid var(--line);border-radius:12px;padding:16px;background:var(--surface-2);min-height:160px;font-size:15px;white-space:pre-wrap;overflow-wrap:anywhere;}
   mark{border-radius:4px;padding:0 2px;font-weight:600;}
   mark.cat-authority{background:#DCE6F7;color:#1E3A78;}
   mark.cat-threat{background:var(--danger-bg);color:var(--danger-ink);}
@@ -203,13 +203,13 @@
   @media (max-width:760px){.help-grid{grid-template-columns:1fr 1fr;}}
   @media (max-width:520px){.help-grid{grid-template-columns:1fr;}}
   .hotline{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;text-align:center;box-shadow:var(--shadow);}
-  .hotline .num{font-family:'JetBrains Mono';font-weight:700;font-size:26px;color:var(--danger-ink);}
+  .hotline .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;color:var(--danger-ink);}
   .hotline .name{font-size:13.5px;color:var(--ink-soft);margin-top:4px;}
   .steps{display:flex;flex-direction:column;gap:0;margin-top:8px;}
   .step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line);}
   .step:last-child{border-bottom:none;}
-  .step .num2{font-family:'JetBrains Mono';font-weight:700;font-size:20px;color:var(--accent-ink);flex:none;width:30px;}
-  .step b{font-family:'Bai Jamjuree';font-size:15.5px;display:block;margin-bottom:2px;}
+  .step .num2{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:20px;color:var(--accent-ink);flex:none;width:30px;}
+  .step b{font-family:'Bai Jamjuree',sans-serif;font-size:15.5px;display:block;margin-bottom:2px;}
   .step span{color:var(--ink-soft);font-size:14px;}
 
   footer{border-top:1px solid var(--line);padding:26px 0 60px;color:var(--ink-faint);font-size:12.5px;}
@@ -219,7 +219,7 @@
   .drop{border:2px dashed var(--line);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:.15s;background:var(--surface-2);}
   .drop:hover, .drop.drag{border-color:var(--accent);background:var(--accent-bg);}
   .drop svg{color:var(--ink-faint);margin-bottom:8px;}
-  .drop .t1{font-family:'Bai Jamjuree';font-weight:600;font-size:15.5px;color:var(--ink);}
+  .drop .t1{font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:15.5px;color:var(--ink);}
   .drop .t2{font-size:13px;color:var(--ink-faint);margin-top:3px;}
   .img-stage{display:none;gap:18px;margin-top:18px;}
   .img-stage.on{display:grid;grid-template-columns:220px 1fr;}
@@ -232,20 +232,24 @@
 
   /* voice module */
   .mic-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
-  .mic-btn{display:flex;align-items:center;gap:10px;font:inherit;font-family:'Bai Jamjuree';font-weight:600;font-size:15px;padding:12px 20px;border-radius:100px;border:1px solid var(--danger-line);background:var(--danger-bg);color:var(--danger-ink);cursor:pointer;}
+  .mic-btn{display:flex;align-items:center;gap:10px;font:inherit;font-family:'Bai Jamjuree',sans-serif;font-weight:600;font-size:15px;padding:12px 20px;border-radius:100px;border:1px solid var(--danger-line);background:var(--danger-bg);color:var(--danger-ink);cursor:pointer;}
   .mic-btn .rec-dot{width:10px;height:10px;border-radius:50%;background:var(--danger);}
   .mic-btn.live .rec-dot{animation:pulse 1.1s infinite;}
   @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(178,58,46,.5);}70%{box-shadow:0 0 0 9px rgba(178,58,46,0);}100%{box-shadow:0 0 0 0 rgba(178,58,46,0);}}
-  .file-btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-family:'Sarabun';font-weight:600;font-size:14px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;}
+  .file-btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;padding:10px 16px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;}
   .file-btn:hover{background:var(--surface-2);}
   audio{width:100%;margin-top:10px;}
   .unsupported-note{font-size:13px;color:var(--ink-faint);background:var(--surface-2);border-radius:10px;padding:10px 14px;margin-top:10px;}
   .hint-note{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--ink-faint);background:var(--surface-2);border-radius:10px;padding:10px 14px;margin:0 0 18px;}
   .hint-note svg{flex:none;margin-top:2px;}
-  textarea#voice-transcript{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:14px;font:15px/1.6 'Sarabun';background:var(--surface-2);color:var(--ink);margin-top:14px;}
+  textarea#voice-transcript{width:100%;min-height:120px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:14px;font:15px/1.6 'Sarabun',sans-serif;background:var(--surface-2);color:var(--ink);margin-top:14px;}
   textarea#voice-transcript:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  textarea#agent-input{flex:1;min-height:52px;max-height:160px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:15px/1.6 'Sarabun',sans-serif;background:var(--surface-2);color:var(--ink);}
 
-  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} .mic-btn.live .rec-dot{animation:none;} }
+  @media (prefers-reduced-motion: reduce){
+    nav.tabs button, .tile, .btn, .chk, .drop{transition:none;}
+    .mic-btn.live .rec-dot{animation:none;}
+  }
 </style>
 
 <div id="app">
@@ -367,6 +371,7 @@
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="10" r="1.6" fill="currentColor"/><path d="M4 17 L9 12 L13 15.5 L16 13 L20 17" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/></svg>
           <div class="t1">คลิกเพื่อเลือกภาพ หรือวางไฟล์ที่นี่</div>
           <div class="t2">รองรับ JPG, PNG — ประมวลผลในเครื่องคุณเท่านั้น</div>
+          <label for="img-input" class="sr-only">เลือกไฟล์ภาพหรือเอกสาร</label>
           <input type="file" accept="image/*" id="img-input" style="display:none;">
         </div>
         <div class="img-stage" id="img-stage">
@@ -400,6 +405,7 @@
         <span class="src">รูปแบบที่พบในหลายคดีนักศึกษา 2568–2569</span></div>
       </div>
       <div class="card">
+        <label for="scan-input" class="sr-only">วางข้อความสนทนาเพื่อสแกน</label>
         <textarea id="scan-input" placeholder="วางข้อความสนทนาที่นี่ เช่น &quot;เจ้าหน้าที่ปปง. แจ้งว่าบัญชีของคุณพัวพันคดีฟอกเงิน ห้ามวางสายและห้ามบอกใครเด็ดขาด ให้โอนเงินเข้าบัญชีกลางเพื่อตรวจสอบ&quot;"></textarea>
         <div class="btn-row"><button class="btn primary" id="scan-run">สแกนข้อความ</button><button class="btn ghost" id="scan-clear">ล้างข้อความ</button></div>
         <div class="legend">
@@ -458,6 +464,7 @@
         </div>
         <div id="mic-unsupported" class="unsupported-note result-hidden">เบราว์เซอร์นี้ไม่รองรับหรือไม่อนุญาตให้ใช้การถอดเสียงพูดอัตโนมัติ — ฟังไฟล์เสียงด้านล่างแล้วพิมพ์ข้อความที่ได้ยินลงในช่องด้านล่างแทนได้</div>
         <audio id="audio-player" controls style="display:none;"></audio>
+        <label for="voice-transcript" class="sr-only">ข้อความที่ถอดเสียงได้</label>
         <textarea id="voice-transcript" placeholder="ข้อความที่ถอดได้จะปรากฏที่นี่ระหว่างพูด หรือพิมพ์/แก้ไขเองได้ตลอดเวลา"></textarea>
         <div class="btn-row">
           <button class="btn primary" id="voice-scan">สแกนข้อความที่ถอดได้</button>
@@ -574,7 +581,8 @@
           <button type="button" class="btn ghost agent-suggest" data-q="มีคนชวนลงทุนบอกว่าได้กำไรแน่นอน 20% ต่อเดือน น่าเชื่อถือไหม">ชวนลงทุนการันตีกำไรสูง</button>
         </div>
         <div class="mic-row">
-          <textarea id="agent-input" placeholder="พิมพ์คำถามหรืออธิบายสถานการณ์ที่สงสัย…" style="flex:1;min-height:52px;max-height:160px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:15px/1.6 'Sarabun';background:var(--surface-2);color:var(--ink);"></textarea>
+          <label for="agent-input" class="sr-only">พิมพ์คำถามถึงผู้ช่วย AI</label>
+          <textarea id="agent-input" placeholder="พิมพ์คำถามหรืออธิบายสถานการณ์ที่สงสัย…"></textarea>
           <button class="btn primary" id="agent-send" type="button">ส่ง</button>
         </div>
         <div class="privacy-note">
@@ -649,7 +657,7 @@
   var tabs = document.querySelectorAll('#tabs button');
 
   function goToPage(key){
-    if(PAGES.indexOf(key) === -1) return;
+    if(!PAGES.includes(key)) return;
     PAGES.forEach(function(k){
       var el = document.getElementById('mod-'+k);
       if(el) el.classList.toggle('active', k === key);
@@ -748,15 +756,17 @@
     });
   }
 
+  function onSegButtonClick(ev){
+    var btn = ev.currentTarget;
+    var seg = btn.closest('.seg');
+    if(!seg) return;
+    seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('on','danger-on'); });
+    btn.classList.add('on');
+    if(btn.dataset.v==='1') btn.classList.add('danger-on');
+  }
   function wireSeg(listEl){
-    listEl.querySelectorAll('.seg').forEach(function(seg){
-      seg.querySelectorAll('button').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('on','danger-on'); });
-          btn.classList.add('on');
-          if(btn.dataset.v==='1') btn.classList.add('danger-on');
-        });
-      });
+    listEl.querySelectorAll('.seg button').forEach(function(btn){
+      btn.addEventListener('click', onSegButtonClick);
     });
   }
   function wireChk(listEl){
@@ -817,15 +827,18 @@
   buildChecklist(quizList, quizItems.map(function(x){return {q:x.q, icon:x.icon};}), 'seg');
   wireSeg(quizList);
 
+  var PAGE_ICONS = {video:'video', image:'doc', scan:'chat', voice:'mic', romance:'heart', invest:'chart', help:'help', agent:'chat'};
+  function iconForPage(key){
+    return PAGE_ICONS[key] || 'help';
+  }
+  function renderQuizSuggestionButton(key){
+    return '<button type="button" class="btn ghost small" data-goto="'+key+'">'+qicon(iconForPage(key))+PAGE_LABELS[key]+'</button>';
+  }
   function renderQuizSuggestions(keys){
     var box = document.getElementById('quiz-suggest');
     var row = document.getElementById('quiz-suggest-row');
     if(!keys.length){ box.classList.add('result-hidden'); row.innerHTML=''; return; }
-    row.innerHTML = keys.map(function(k){
-      return '<button type="button" class="btn ghost small" data-goto="'+k+'">'+qicon(
-        k==='video'?'video':k==='image'?'doc':k==='scan'?'chat':k==='voice'?'mic':k==='romance'?'heart':k==='invest'?'chart':'help'
-      )+PAGE_LABELS[k]+'</button>';
-    }).join('');
+    row.innerHTML = keys.map(renderQuizSuggestionButton).join('');
     row.querySelectorAll('[data-goto]').forEach(function(btn){
       btn.addEventListener('click', function(){ goToPage(btn.dataset.goto); });
     });
@@ -932,7 +945,7 @@
     {key:'handoff', cls:'cat-handoff', weight:20, words:['ถอนเงินสด','รับที่คอนโด','รับที่โรงแรม','รหัสลับ','ม้าเร็ว','ส่งเงินสด']}
   ];
 
-  function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function escapeHtml(s){ return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
   // ids = {input, output, gauge, score, tier, wrap}
   function runScanOn(ids){
@@ -996,45 +1009,66 @@
 
   // ================= IMAGE / DOCUMENT CHECK =================
   // Minimal JPEG EXIF reader: extracts Make/Model/Software from IFD0 (ASCII fields only).
+  var EXIF_ASCII_NAMES = {0x010F:'Make',0x0110:'Model',0x0131:'Software'};
+
+  function readExifAscii(view, vOff, count){
+    var str = '';
+    for(var c = 0; c < count - 1; c++){
+      var ch = view.getUint8(vOff + c);
+      if(ch === 0){
+        break;
+      }
+      str += String.fromCodePoint(ch);
+    }
+    return str;
+  }
+
+  function parseTiffIfd0(view, tiffStart){
+    var little = view.getUint16(tiffStart, false) === 0x4949;
+    var getU16 = function(o){ return view.getUint16(o, little); };
+    var getU32 = function(o){ return view.getUint32(o, little); };
+    var ifd0 = tiffStart + getU32(tiffStart + 4);
+    var n = getU16(ifd0);
+    var tags = {};
+    for(var i = 0; i < n; i++){
+      var eo = ifd0 + 2 + i * 12;
+      var tag = getU16(eo);
+      var type = getU16(eo + 2);
+      var count = getU32(eo + 4);
+      if(!(tag in EXIF_ASCII_NAMES) || type !== 2) continue;
+      var vOff = count <= 4 ? eo + 8 : tiffStart + getU32(eo + 8);
+      tags[EXIF_ASCII_NAMES[tag]] = readExifAscii(view, vOff, count);
+    }
+    return tags;
+  }
+
+  function parseExifApp1(view, segStart){
+    if(view.getUint32(segStart, false) !== 0x45786966) return null;
+    if(view.getUint16(segStart + 4, false) !== 0x0000) return null;
+    return parseTiffIfd0(view, segStart + 6);
+  }
+
   function parseExif(arrayBuffer){
     try{
       var view = new DataView(arrayBuffer);
-      if(view.getUint16(0,false) !== 0xFFD8) return null; // not a JPEG
-      var offset = 2, len = view.byteLength;
+      if(view.getUint16(0, false) !== 0xFFD8) return null; // not a JPEG
+      var offset = 2;
+      var len = view.byteLength;
       while(offset < len - 4){
-        var marker = view.getUint16(offset,false);
+        var marker = view.getUint16(offset, false);
         if((marker & 0xFF00) !== 0xFF00) break;
+        var segLen = view.getUint16(offset + 2, false);
         if(marker === 0xFFE1){
-          var segLen = view.getUint16(offset+2,false);
-          var segStart = offset+4;
-          if(view.getUint32(segStart,false) === 0x45786966 && view.getUint16(segStart+4,false) === 0x0000){
-            var tiffStart = segStart+6;
-            var little = view.getUint16(tiffStart,false) === 0x4949;
-            var getU16=function(o){return view.getUint16(o,little);};
-            var getU32=function(o){return view.getUint32(o,little);};
-            var ifd0=tiffStart+getU32(tiffStart+4);
-            var n=getU16(ifd0);
-            var NAMES={0x010F:'Make',0x0110:'Model',0x0131:'Software'};
-            var tags={};
-            for(var i=0;i<n;i++){
-              var eo=ifd0+2+i*12;
-              var tag=getU16(eo), type=getU16(eo+2), count=getU32(eo+4);
-              if(!(tag in NAMES) || type!==2) continue;
-              var vOff = count<=4 ? eo+8 : tiffStart+getU32(eo+8);
-              var str='';
-              for(var c=0;c<count-1;c++){ var ch=view.getUint8(vOff+c); if(ch===0) break; str+=String.fromCharCode(ch); }
-              tags[NAMES[tag]]=str;
-            }
-            return tags;
-          }
-          offset += 2+segLen;
-        } else {
-          var segLen2 = view.getUint16(offset+2,false);
-          offset += 2+segLen2;
+          var tags = parseExifApp1(view, offset + 4);
+          if(tags) return tags;
         }
+        offset += 2 + segLen;
       }
       return {};
-    } catch(e){ return {}; }
+    } catch {
+      // Corrupt/truncated JPEG or out-of-range EXIF offsets — treat as no metadata
+      return {};
+    }
   }
 
   var EDIT_SOFTWARE_HINTS = ['photoshop','canva','gimp','picsart','snapseed','lightroom','pixlr','remini','faceapp'];
@@ -1074,14 +1108,12 @@
     exifBox.className = 'exif-box';
     exifBox.textContent = 'กำลังอ่านข้อมูลภาพ…';
 
-    var reader = new FileReader();
-    reader.onload = function(){
-      var tags = parseExif(reader.result) || {};
+    function renderExifRows(tags){
       var rows = [];
       var flagged = false;
       if(tags.Software){
         var sw = tags.Software;
-        var hit = EDIT_SOFTWARE_HINTS.some(function(h){ return sw.toLowerCase().indexOf(h) !== -1; });
+        var hit = EDIT_SOFTWARE_HINTS.some(function(h){ return sw.toLowerCase().includes(h); });
         rows.push('<div class="row"><span>โปรแกรมที่ใช้แก้ไข</span><span>'+escapeHtml(sw)+(hit?' ⚠️':'')+'</span></div>');
         if(hit) flagged = true;
       }
@@ -1093,9 +1125,13 @@
       }
       exifBox.innerHTML = rows.join('') + '<div style="margin-top:8px;font-size:12px;color:var(--ink-faint);">ข้อมูลนี้เป็นเพียงเบาะแสประกอบ ไม่ใช่การยืนยันขั้นสุดท้าย เนื่องจากสามารถถูกลบหรือปลอมแปลงได้</div>';
       if(flagged) exifBox.classList.add('flag');
-    };
-    reader.onerror = function(){ exifBox.textContent = 'ไม่สามารถอ่านข้อมูลภาพนี้ได้'; };
-    reader.readAsArrayBuffer(file);
+    }
+
+    file.arrayBuffer().then(function(buf){
+      renderExifRows(parseExif(buf) || {});
+    }).catch(function(){
+      exifBox.textContent = 'ไม่สามารถอ่านข้อมูลภาพนี้ได้';
+    });
   }
 
   document.getElementById('image-eval').addEventListener('click', function(){
@@ -1157,9 +1193,11 @@
         listening = true; micBtn.classList.add('live');
         micLabel.textContent = 'กำลังฟัง… (คลิกเพื่อหยุด)';
         document.getElementById('mic-unsupported').classList.add('result-hidden');
-      } catch(e){
+      } catch (err){
+        // SpeechRecognition.start() throws InvalidStateError if already started
         var note = document.getElementById('mic-unsupported');
-        note.textContent = 'ไม่สามารถเริ่มการถอดเสียงได้ กรุณาพิมพ์ข้อความที่ได้ยินแทน';
+        var detail = (err && err.name) ? ' (' + err.name + ')' : '';
+        note.textContent = 'ไม่สามารถเริ่มการถอดเสียงได้' + detail + ' — กรุณาพิมพ์ข้อความที่ได้ยินแทน';
         note.classList.remove('result-hidden');
       }
     });
@@ -1275,7 +1313,9 @@
       if (fromQuery) { localStorage.setItem('cko-agent-url', fromQuery); return fromQuery; }
       var saved = localStorage.getItem('cko-agent-url');
       if (saved) return saved;
-    } catch (e) {}
+    } catch {
+      // localStorage/URLSearchParams may be unavailable (private mode / file://) — use default
+    }
     return AGENT_PROXY_URL_DEFAULT;
   })();
 
