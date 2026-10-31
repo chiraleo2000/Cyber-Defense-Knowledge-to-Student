@@ -38,10 +38,26 @@ CHROME_CANDIDATES = [
 ]
 
 
+CHROME_CANDIDATES += [
+    "/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium",
+    "/usr/bin/chromium-browser", "/snap/bin/chromium",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+]
+
+
 def find_browser():
+    env = os.environ.get("CHROME_PATH")  # กำหนดเองได้: CHROME_PATH=/path/to/chrome
+    if env and os.path.exists(env):
+        return env
     for p in CHROME_CANDIDATES:
         if os.path.exists(p):
             return p
+    import shutil
+    for name in ("google-chrome", "chromium", "chromium-browser", "msedge", "chrome"):
+        w = shutil.which(name)
+        if w:
+            return w
     raise RuntimeError("ไม่พบ Chrome หรือ Edge สำหรับสร้าง PDF")
 
 
@@ -122,10 +138,12 @@ def md_to_pdf(md_path, css, browser):
     tmp = tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8")
     tmp.write(doc)
     tmp.close()
-    tmp_url = "file:///" + tmp.name.replace("\\", "/")
+    import pathlib
+    tmp_url = pathlib.Path(tmp.name).as_uri()
+    extra = ["--no-sandbox"] if hasattr(os, "geteuid") and os.geteuid() == 0 else []  # Linux root/container
     try:
         subprocess.run(
-            [browser, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+            [browser, "--headless", "--disable-gpu", "--no-pdf-header-footer", *extra,
              "--print-to-pdf=" + out_pdf, "--print-to-pdf-no-header", tmp_url],
             check=True, timeout=90,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,

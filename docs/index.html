@@ -2,26 +2,38 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>เช็คก่อนโอน — ศูนย์ข้อมูลภัยหลอกลวงไซเบอร์สำหรับนักศึกษา</title>
-<meta name="description" content="สถิติ คดีจริง บทวิเคราะห์ คำแนะนำ และเครื่องมือตรวจสอบความเสี่ยงจากภัยหลอกลวงไซเบอร์ที่มุ่งเป้านักศึกษาในประเทศไทย">
+<meta name="description" content="สถิติ คดีจริง ข่าวล่าสุด บทวิเคราะห์ คำแนะนำ และเครื่องมือตรวจสอบความเสี่ยงจากภัยหลอกลวงไซเบอร์ที่มุ่งเป้านักศึกษาในประเทศไทย">
+<meta name="theme-color" content="#101a30">
+<meta name="color-scheme" content="light dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="เช็คก่อนโอน">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%231c2b4a%22/><circle cx=%2250%22 cy=%2250%22 r=%2214%22 fill=%22%23c8862a%22/></svg>">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
+<a class="skip-link" href="#doc-content">ข้ามไปที่เนื้อหา</a>
+
 <header class="topbar">
-  <button class="menu-btn" id="menu-btn" aria-label="เปิดเมนู">☰</button>
+  <button class="menu-btn" id="menu-btn" aria-label="เปิดเมนู" aria-controls="sidebar" aria-expanded="false">☰</button>
   <a class="brand" href="#/หน้าแรก"><span class="dot"></span> เช็คก่อนโอน</a>
   <div class="spacer"></div>
   <span class="hotline">สายด่วนแจ้งภัยไซเบอร์ <b>AOC 1441</b> / <b>191</b></span>
-  <a class="webapp-btn" href="webapp/">🛡️ เปิดเว็บแอป / ทำแบบทดสอบ</a>
+  <a class="webapp-btn" href="webapp/">🛡️ <span class="webapp-btn-long">เปิดเว็บแอป / ทำแบบทดสอบ</span><span class="webapp-btn-short">เว็บแอป</span></a>
   <button class="menu-btn" id="theme-btn" style="display:inline-block" aria-label="สลับธีม">◐</button>
 </header>
 
+<div class="backdrop" id="backdrop" hidden></div>
+
 <div class="shell">
-  <aside class="sidebar" id="sidebar">
-    <input class="search" id="search-box" type="search" placeholder="ค้นหาหัวข้อ…">
+  <aside class="sidebar" id="sidebar" aria-label="เมนูหัวข้อ">
+    <input class="search" id="search-box" type="search" placeholder="ค้นหาหัวข้อ…" enterkeyhint="search" autocomplete="off">
     <nav id="side-nav"></nav>
   </aside>
 
@@ -35,6 +47,17 @@
     เว็บแอปประเมินความเสี่ยง: <a href="webapp/">เช็คก่อนโอน (เว็บแอป)</a>
   </footer>
 </div>
+
+<!-- แถบทางลัดฉุกเฉิน แสดงเฉพาะหน้าจอเล็ก -->
+<nav class="quickbar" aria-label="ทางลัดฉุกเฉิน">
+  <a class="qb qb-red" href="tel:1441"><span class="qb-ico" aria-hidden="true">📞</span><span class="qb-t">โทร 1441</span></a>
+  <a class="qb qb-navy" href="tel:191"><span class="qb-ico" aria-hidden="true">📞</span><span class="qb-t">โทร 191</span></a>
+  <a class="qb qb-amber" href="webapp/"><span class="qb-ico" aria-hidden="true">🛡️</span><span class="qb-t">เว็บแอป</span></a>
+</nav>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<noscript><p style="padding:20px">เว็บไซต์นี้ต้องเปิด JavaScript เพื่อแสดงเนื้อหา หากกำลังถูกหลอกอยู่ ให้โทร <a href="tel:1441">1441</a> หรือ <a href="tel:191">191</a> ทันที</p></noscript>
 
 <script src="assets/js/marked.min.js"></script>
 <script src="assets/js/app.js"></script>

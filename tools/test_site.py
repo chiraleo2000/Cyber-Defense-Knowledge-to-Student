@@ -42,7 +42,11 @@ def row(label, ok, status, size):
 # 1) ไฟล์หลัก ( .nojekyll เป็นไฟล์ว่างโดยตั้งใจ จึง min_len=0 )
 core = [("index.html", "text/html", 1), ("assets/js/app.js", "javascript", 1),
         ("assets/js/marked.min.js", "javascript", 1), ("assets/css/style.css", "css", 1),
-        ("webapp/index.html", "text/html", 1), (".nojekyll", None, 0)]
+        ("webapp/index.html", "text/html", 1), (".nojekyll", None, 0),
+        # PWA / มือถือ
+        ("manifest.webmanifest", None, 50), ("sw.js", "javascript", 100),
+        ("icons/icon-192.png", "png", 500), ("icons/icon-512.png", "png", 500),
+        ("icons/icon-maskable-512.png", "png", 500), ("icons/apple-touch-icon.png", "png", 500)]
 for f, ct, ml in core:
     ok, st, sz, _ = check(f, ct, ml)
     row("core: " + f, ok, st, sz)
@@ -80,6 +84,38 @@ for p in glob.glob(os.path.join(CONTENT, "*.md")):
         if not exists:
             broken.append((os.path.basename(p), href))
 
+# 5) PWA: manifest, viewport, และรายการ precache ของ service worker ต้องมีไฟล์จริงทั้งหมด
+import json
+pwa_problems = []
+try:
+    man = json.load(open(os.path.join(ROOT, "docs", "manifest.webmanifest"), encoding="utf-8"))
+    for k in ("name", "short_name", "start_url", "display", "icons"):
+        if not man.get(k):
+            pwa_problems.append("manifest ขาด " + k)
+    for ic in man.get("icons", []):
+        if not os.path.exists(os.path.join(ROOT, "docs", ic["src"])):
+            pwa_problems.append("manifest icon ไม่พบ: " + ic["src"])
+except Exception as e:
+    pwa_problems.append("manifest อ่านไม่ได้: %s" % e)
+for f in ("index.html", os.path.join("webapp", "index.html")):
+    html = open(os.path.join(ROOT, "docs", f), encoding="utf-8").read()
+    if 'name="viewport"' not in html:
+        pwa_problems.append(f + " ไม่มี meta viewport")
+sw = open(os.path.join(ROOT, "docs", "sw.js"), encoding="utf-8").read()
+m = re.search(r"const PRECACHE = (\[.*?\]);", sw, re.S)
+if not m:
+    pwa_problems.append("sw.js ไม่มีรายการ PRECACHE (รัน python tools/build_sw.py)")
+else:
+    for u in json.loads(m.group(1)):
+        rel = urllib.parse.unquote(u.split("?")[0].lstrip("./")) or "index.html"
+        if rel.endswith("/"):
+            rel += "index.html"
+        if not os.path.exists(os.path.join(ROOT, "docs", rel)):
+            pwa_problems.append("PRECACHE ชี้ไฟล์ที่ไม่มี: " + u)
+    for name in md_files:
+        if urllib.parse.quote(name) not in sw:
+            pwa_problems.append("PRECACHE ไม่มีหน้า " + name + " (รัน python tools/build_sw.py)")
+
 print("==== SITE TEST RESULTS ====")
 for mark, label, st, sz in results:
     print(f"[{mark}] {label}  (HTTP {st}, {sz} bytes)")
@@ -88,4 +124,6 @@ failc = sum(1 for r in results if r[0] == "FAIL")
 print(f"\nPASS={passc} FAIL={failc}")
 print("\n==== BROKEN INTERNAL LINKS ====")
 print("  none" if not broken else "\n".join(f"  in {s}: {h}" for s, h in broken))
-sys.exit(0 if failc == 0 and not broken else 1)
+print("\n==== PWA / MOBILE ====")
+print("  ok" if not pwa_problems else "\n".join("  " + x for x in pwa_problems))
+sys.exit(0 if failc == 0 and not broken and not pwa_problems else 1)
