@@ -1,0 +1,73 @@
+{
+  "name": "เช็คก่อนโอน — ศูนย์ข้อมูลภัยหลอกลวงไซเบอร์",
+  "short_name": "เช็คก่อนโอน",
+  "description": "หยุด ถาม ตรวจ ก่อนโอนเงินให้คนแปลกหน้า — ข่าว สถิติ คู่มือรับมือ และเครื่องมือประเมินความเสี่ยงสำหรับนักศึกษาและครอบครัว",
+  "lang": "th",
+  "dir": "ltr",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7ef",
+  "theme_color": "#101a30",
+  "categories": [
+    "education",
+    "security"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "ถูกหลอกแล้วทำอย่างไร",
+      "short_name": "ถูกหลอกแล้ว",
+      "url": "./#/%E0%B8%96%E0%B8%B9%E0%B8%81%E0%B8%AB%E0%B8%A5%E0%B8%AD%E0%B8%81%E0%B9%81%E0%B8%A5%E0%B9%89%E0%B8%A7%E0%B8%97%E0%B8%B3%E0%B8%AD%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%87%E0%B9%84%E0%B8%A3",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "เว็บแอปประเมินความเสี่ยง",
+      "short_name": "เว็บแอป",
+      "url": "./webapp/",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "ข่าวล่าสุดและบทวิเคราะห์",
+      "short_name": "ข่าวล่าสุด",
+      "url": "./#/%E0%B8%82%E0%B9%88%E0%B8%B2%E0%B8%A7%E0%B8%A5%E0%B9%88%E0%B8%B2%E0%B8%AA%E0%B8%B8%E0%B8%94%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%9A%E0%B8%97%E0%B8%A7%E0%B8%B4%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B2%E0%B8%B0%E0%B8%AB%E0%B9%8C",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
