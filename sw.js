@@ -6,7 +6,7 @@
    - ไม่แตะคำขอข้ามโดเมน (Google Fonts, jsDelivr, Worker ของผู้ช่วย AI) และไม่แคชไฟล์ใน downloads/ (PDF/โปสเตอร์ ขนาดใหญ่)
 */
 // BEGIN-GENERATED
-const VERSION = "cko-2e8c56a9e9";
+const VERSION = "cko-cf30960cec";
 const PRECACHE = [
   "./",
   "index.html",
