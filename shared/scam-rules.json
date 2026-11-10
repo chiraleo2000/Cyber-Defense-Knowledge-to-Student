@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "source": "webapp-source/check-kon-oon.html LEXICON + checklist weights",
+  "syncedAt": "2569-11-10",
+  "tiers": [
+    {"maxExclusive": 30, "id": "safe", "label": "ปลอดภัย"},
+    {"maxExclusive": 60, "id": "watch", "label": "เฝ้าระวัง"},
+    {"maxExclusive": 80, "id": "high", "label": "เสี่ยงสูง"},
+    {"maxExclusive": 101, "id": "critical", "label": "อันตรายเฉียบพลัน"}
+  ],
+  "lexicon": [
+    {
+      "key": "authority",
+      "weight": 15,
+      "words": [
+        "ปปง.",
+        "ดีเอสไอ",
+        "DSI",
+        "สภ.เมืองเลย",
+        "บก.สอท",
+        "หมายจับ",
+        "หมายศาล",
+        "เจ้าหน้าที่ AIS",
+        "สำนักงานใหญ่",
+        "ตำรวจไซเบอร์",
+        "กรมสอบสวนคดีพิเศษ",
+        "ห้องสอบสวน",
+        "Telegram",
+        "เทเลแกรม"
+      ]
+    },
+    {
+      "key": "threat",
+      "weight": 20,
+      "words": [
+        "คดีฟอกเงิน",
+        "ฟอกเงิน",
+        "ยาเสพติด",
+        "เว็บพนัน",
+        "อายัดบัญชี",
+        "ความลับที่สุด",
+        "ดำเนินคดี",
+        "จับกุม",
+        "ค่าไถ่",
+        "คราบเลือด"
+      ]
+    },
+    {
+      "key": "control",
+      "weight": 20,
+      "words": [
+        "ห้ามวางสาย",
+        "ห้ามบอก",
+        "ห้ามปิดกล้อง",
+        "ห้ามแคปหน้าจอ",
+        "ห้ามคุยกับใคร",
+        "ห้ามปรึกษา",
+        "เปลี่ยนเบอร์",
+        "เช่าห้องรายวัน",
+        "ย้ายออกจากที่พัก",
+        "รหัสยืนยัน"
+      ]
+    },
+    {
+      "key": "money",
+      "weight": 25,
+      "words": [
+        "บัญชีกลาง",
+        "โอนเงินตรวจสอบ",
+        "เงินประกันตัว",
+        "ทุนการศึกษา",
+        "ทุนเรียนต่อ",
+        "โอนยืนยัน",
+        "พิสูจน์ความบริสุทธิ์"
+      ]
+    },
+    {
+      "key": "handoff",
+      "weight": 20,
+      "words": [
+        "ถอนเงินสด",
+        "รับที่คอนโด",
+        "รับที่โรงแรม",
+        "รหัสลับ",
+        "ม้าเร็ว",
+        "ส่งเงินสด"
+      ]
+    },
+    {
+      "key": "job",
+      "weight": 18,
+      "words": [
+        "งานเสริม",
+        "กดไลก์",
+        "ปลดล็อกระบบ",
+        "ปลดล็อก",
+        "เปิดระบบ",
+        "ค่าภารกิจ",
+        "เงินสำรอง",
+        "โอนก่อนทำงาน",
+        "ทำภารกิจ"
+      ]
+    },
+    {
+      "key": "crypto",
+      "weight": 18,
+      "words": [
+        "คริปโต",
+        "คริปโตเคอร์เรนซี",
+        "สินทรัพย์ดิจิทัล",
+        "กำไรการันตี",
+        "การันตีกำไร",
+        "ผลตอบแทนการันตี",
+        "กำไรแน่นอน"
+      ]
+    }
+  ],
+  "editSoftwareHints": [
+    "photoshop",
+    "canva",
+    "gimp",
+    "picsart",
+    "snapseed",
+    "lightroom",
+    "pixlr",
+    "remini",
+    "faceapp"
+  ],
+  "syncNotes": "When webapp LEXICON/checklist weights change, update this file and mobile/lib/core/lexicon.dart + checklists.dart in the same PR. Flutter embeds rules in Dart for offline reliability; this JSON is the shared checklist artifact."
+}
